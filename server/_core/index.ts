@@ -1,5 +1,7 @@
 import "dotenv/config";
 import crypto from "node:crypto";
+import { lookup } from "node:dns/promises";
+import { isIP } from "node:net";
 import express from "express";
 import { createServer } from "http";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
@@ -29,12 +31,74 @@ function isAllowedSourceUrl(value: string) {
   try {
     const u = new URL(value);
     const configuredHosts = readStore().sources.flatMap(source => { try { return [new URL(source.base).hostname]; } catch { return []; } });
-    return (u.protocol === "https:" || u.protocol === "http:") && [...sourceHosts, ...configuredHosts].some(
+    return u.protocol === "https:" && !isUnsafeHostname(u.hostname) && [...sourceHosts, ...configuredHosts].some(
       host => u.hostname === host || u.hostname.endsWith(`.${host}`),
     );
   } catch {
     return false;
   }
+}
+
+function isPrivateAddress(address: string): boolean {
+  if (isIP(address) === 4) {
+    const octets = address.split(".").map(Number);
+    const [a, b] = octets;
+    return a === 0 || a === 10 || a === 127 || a >= 224 || (a === 100 && b >= 64 && b <= 127) || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && (b === 0 || b === 168)) || (a === 198 && (b === 18 || b === 19 || b === 51)) || (a === 203 && b === 0);
+  }
+  if (isIP(address) === 6) {
+    const value = address.toLowerCase();
+    if (value.startsWith("::ffff:")) {
+      const mapped = value.slice("::ffff:".length);
+      return isIP(mapped) === 4 ? isPrivateAddress(mapped) : true;
+    }
+    return value === "::" || value === "::1" || value.startsWith("fc") || value.startsWith("fd") || value.startsWith("fe8") || value.startsWith("fe9") || value.startsWith("fea") || value.startsWith("feb");
+  }
+  return true;
+}
+
+function isUnsafeHostname(hostname: string) {
+  const value = hostname.toLowerCase().replace(/\.$/, "");
+  return !value || value === "localhost" || value.endsWith(".localhost") || value.endsWith(".local") || value.endsWith(".internal") || (isIP(value) !== 0 && isPrivateAddress(value));
+}
+
+async function assertSafeSourceUrl(value: string) {
+  if (!isAllowedSourceUrl(value)) throw new Error("SOURCE_NOT_ALLOWED");
+  const hostname = new URL(value).hostname;
+  let addresses: { address: string }[];
+  try {
+    addresses = await lookup(hostname, { all: true, verbatim: true });
+  } catch {
+    throw new Error("SOURCE_NOT_ALLOWED");
+  }
+  if (!addresses.length || addresses.some(({ address }) => isPrivateAddress(address))) throw new Error("SOURCE_NOT_ALLOWED");
+}
+
+function cookieValue(req: express.Request, name: string) {
+  return req.headers.cookie?.match(new RegExp(`(?:^|;\\s*)${name}=([^;]+)`))?.[1] || "";
+}
+
+function sameOriginMutation(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const origin = req.headers.origin;
+  if (!origin) return next();
+  const forwardedHost = req.headers["x-forwarded-host"];
+  const expectedHost = (typeof forwardedHost === "string" ? forwardedHost.split(",")[0].trim() : req.headers.host) || "";
+  const forwardedProto = req.headers["x-forwarded-proto"];
+  const expectedProtocol = (typeof forwardedProto === "string" ? forwardedProto.split(",")[0].trim() : req.protocol) || "https";
+  try {
+    const parsed = new URL(origin);
+    if (parsed.host !== expectedHost || parsed.protocol !== `${expectedProtocol}:`) return res.status(403).json({ error: "CROSS_ORIGIN_REQUEST" });
+  } catch {
+    return res.status(403).json({ error: "CROSS_ORIGIN_REQUEST" });
+  }
+  return next();
+}
+
+function requireDeveloperCsrf(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const cookie = cookieValue(req, "fate_dev_csrf");
+  const header = req.headers["x-csrf-token"];
+  const token = typeof header === "string" ? header : "";
+  if (!cookie || !token || cookie.length !== token.length || !crypto.timingSafeEqual(Buffer.from(cookie), Buffer.from(token))) return res.status(403).json({ error: "CSRF_REQUIRED" });
+  return next();
 }
 
 function proxyRateLimit(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -53,7 +117,7 @@ function proxyRateLimit(req: express.Request, res: express.Response, next: expre
 async function fetchSource(url: string) {
   let current = url;
   for (let i = 0; i < 4; i += 1) {
-    if (!isAllowedSourceUrl(current)) throw new Error("SOURCE_NOT_ALLOWED");
+    await assertSafeSourceUrl(current);
     const upstream = await fetch(current, {
       redirect: "manual",
       headers: {
@@ -76,8 +140,7 @@ async function fetchSource(url: string) {
 
 function apiRateLimit(req: express.Request, res: express.Response, next: express.NextFunction) {
   const now = Date.now();
-  const forwarded = req.headers["x-forwarded-for"];
-  const address = typeof forwarded === "string" ? forwarded.split(",")[0].trim() : req.ip || "unknown";
+  const address = req.ip || "unknown";
   const current = apiWindows.get(address);
   if (!current || now - current.startedAt > 60_000) {
     apiWindows.set(address, { startedAt: now, count: 1 });
@@ -92,7 +155,7 @@ function apiRateLimit(req: express.Request, res: express.Response, next: express
 }
 
 function sessionFrom(req: express.Request) {
-  const raw = req.headers.cookie?.match(/(?:^|;\s*)fate_dev_session=([^;]+)/)?.[1];
+  const raw = cookieValue(req, "fate_dev_session");
   if (!raw) return false;
   const expires = devSessions.get(raw) || 0;
   if (expires < Date.now()) { devSessions.delete(raw); return false; }
@@ -128,7 +191,7 @@ async function startServer() {
   const app = express();
   const server = createServer(app);
   app.disable("x-powered-by");
-  app.use((_req, res, next) => {
+  app.use((req, res, next) => {
     res.set({
       "X-Content-Type-Options": "nosniff",
       "Referrer-Policy": "strict-origin-when-cross-origin",
@@ -136,40 +199,44 @@ async function startServer() {
       "X-DNS-Prefetch-Control": "off",
       "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https:; frame-src https:; font-src 'self' data: https:; object-src 'none'; base-uri 'self'; form-action 'self'",
     });
+    if (req.headers["x-forwarded-proto"] === "https" || process.env.NODE_ENV === "production") res.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
     next();
   });
-  // Configure body parser with larger size limit for file uploads
-  app.use(express.json({ limit: "50mb" }));
-  app.use(express.urlencoded({ limit: "50mb", extended: true }));
+  // Keep request bodies bounded; this app does not accept file uploads.
+  app.use(express.json({ limit: "2mb" }));
+  app.use(express.urlencoded({ limit: "64kb", extended: true, parameterLimit: 100 }));
   app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
   app.get("/api/source-config", (_req, res) => res.json({ sources: publicSources(), settings: readStore().settings }));
-  app.post("/api/dev/login", devLoginRateLimit, (req, res) => {
+  app.post("/api/dev/login", sameOriginMutation, devLoginRateLimit, (req, res) => {
     const code = typeof req.body?.code === "string" ? req.body.code.trim() : "";
     if (!code || code.length > 128 || !verifyCode(code)) return res.status(401).json({ error: "INVALID_DEVELOPER_CODE" });
     const token = crypto.randomBytes(32).toString("hex");
+    const csrf = crypto.randomBytes(32).toString("hex");
     devSessions.set(token, Date.now() + 8 * 60 * 60 * 1000);
     const secure = req.headers["x-forwarded-proto"] === "https" || process.env.NODE_ENV === "production" ? "; Secure" : "";
     res.set("Set-Cookie", `fate_dev_session=${token}; Path=/; HttpOnly; SameSite=None; Max-Age=28800${secure}`);
+    res.append("Set-Cookie", `fate_dev_csrf=${csrf}; Path=/; SameSite=None; Max-Age=28800${secure}`);
     return res.json({ ok: true });
   });
-  app.post("/api/dev/logout", (req, res) => {
-    const raw = req.headers.cookie?.match(/(?:^|;\s*)fate_dev_session=([^;]+)/)?.[1];
+  app.post("/api/dev/logout", sameOriginMutation, requireDeveloper, requireDeveloperCsrf, (req, res) => {
+    const raw = cookieValue(req, "fate_dev_session");
     if (raw) devSessions.delete(raw);
     res.set("Set-Cookie", "fate_dev_session=; Path=/; HttpOnly; SameSite=None; Secure; Max-Age=0");
+    res.append("Set-Cookie", "fate_dev_csrf=; Path=/; SameSite=None; Secure; Max-Age=0");
     return res.json({ ok: true });
   });
   app.get("/api/dev/state", requireDeveloper, (_req, res) => {
     const store = readStore();
     return res.json({ codes: store.codes.map(c => ({ id: c.id, label: c.label, createdAt: c.createdAt, active: c.active })), sources: store.sources, settings: store.settings });
   });
-  app.post("/api/dev/codes", requireDeveloper, (req, res) => {
+  app.post("/api/dev/codes", sameOriginMutation, requireDeveloper, requireDeveloperCsrf, (req, res) => {
     const store = readStore();
     const code = newCode();
     store.codes.push({ id: crypto.randomUUID(), label: typeof req.body?.label === "string" ? req.body.label.slice(0, 80) : "كود مطوّر", hash: codeHash(code), createdAt: new Date().toISOString(), active: true });
     writeStore(store);
     return res.json({ code });
   });
-  app.delete("/api/dev/codes/:id", requireDeveloper, (req, res) => {
+  app.delete("/api/dev/codes/:id", sameOriginMutation, requireDeveloper, requireDeveloperCsrf, (req, res) => {
     const store = readStore();
     const active = store.codes.filter(c => c.active);
     if (active.length <= 1 && active.some(c => c.id === req.params.id)) return res.status(400).json({ error: "LAST_CODE" });
@@ -177,14 +244,17 @@ async function startServer() {
     writeStore(store);
     return res.json({ ok: true });
   });
-  app.put("/api/dev/sources", requireDeveloper, (req, res) => {
+  app.put("/api/dev/sources", sameOriginMutation, requireDeveloper, requireDeveloperCsrf, (req, res) => {
     const sources = Array.isArray(req.body?.sources) ? req.body.sources.slice(0, 100) : [];
-    const clean = sources.filter((s: any) => typeof s?.id === "string" && typeof s?.name === "string" && /^https?:\/\//i.test(String(s.base))).map((s: any) => ({
+    const clean = sources.filter((s: any) => {
+      if (typeof s?.id !== "string" || typeof s?.name !== "string") return false;
+      try { const base = new URL(String(s.base)); return base.protocol === "https:" && !base.username && !base.password && !base.port && !isUnsafeHostname(base.hostname); } catch { return false; }
+    }).map((s: any) => ({
       id: String(s.id).slice(0, 80), name: String(s.name).slice(0, 120), base: String(s.base).replace(/\/+$/, "").slice(0, 500), kind: String(s.kind || "madara").slice(0, 30), api: String(s.api || "").slice(0, 500), list: String(s.list || "").slice(0, 500), search: String(s.search || "").slice(0, 500), alt: Array.isArray(s.alt) ? s.alt.slice(0, 10).map(String) : [], sel: s.sel && typeof s.sel === "object" ? s.sel : {}, imgT: !!s.imgT, viaP: !!s.viaP, enabled: s.enabled !== false, cookie: String(s.cookie || "").slice(0, 12000),
     }));
     const store = readStore(); store.sources = clean; writeStore(store); return res.json({ ok: true, count: clean.length });
   });
-  app.put("/api/dev/settings", requireDeveloper, (req, res) => {
+  app.put("/api/dev/settings", sameOriginMutation, requireDeveloper, requireDeveloperCsrf, (req, res) => {
     const proxyTemplate = typeof req.body?.proxyTemplate === "string" ? req.body.proxyTemplate.slice(0, 1000) : "/api/source-proxy?url={url}";
     if (!proxyTemplate.includes("{url}") || /javascript:|data:|@/.test(proxyTemplate)) return res.status(400).json({ error: "INVALID_PROXY_TEMPLATE" });
     const store = readStore(); store.settings.proxyTemplate = proxyTemplate; writeStore(store); return res.json({ ok: true });

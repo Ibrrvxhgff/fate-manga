@@ -57,6 +57,8 @@ iframe{width:100%;height:55vh;border:1px solid var(--line);border-radius:16px;ba
 const D={ua:'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Mobile Safari/537.36',headers:'{}',mode:'auto',proxy:'/api/source-proxy?url={url}',delay:600,retries:2,timeout:25000,viaT:false,refpol:'no-referrer',theme:'dark',red:false,accent:'#6c8cff',cols:3,radius:12,font:16,rmode:'scroll',fit:'width',rtl:true,gap:0,rbg:'#000000',bright:100,filter:'none',preload:3,autoNext:true,wake:true,tap:true,ttl:600};
 const $=s=>document.querySelector(s),q=(d,s)=>[...d.querySelectorAll(s)],esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const mem={},ls={g(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return mem[k]??d}},s(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{mem[k]=v}}};
+const cookieValue=n=>document.cookie.split(';').map(x=>x.trim()).find(x=>x.startsWith(n+'='))?.slice(n.length+1)||'';
+const devHeaders=(extra={})=>({...extra,...(cookieValue('fate_dev_csrf')?{'X-CSRF-Token':cookieValue('fate_dev_csrf')}: {})});
 const gp=(o,p)=>p.split('.').reduce((a,k)=>a?.[k],o),sp=(o,p,v)=>{const k=p.split('.'),l=k.pop();k.reduce((a,x)=>a[x],o)[l]=v};
 let S={...D,...ls.g('cfg',{})};if(!S.proxy)S.proxy=D.proxy;
 let FAV=ls.g('fav',[]),P=ls.g('prog',{}),L=[],cur=null,R=null,io=null,W=null,tab='home',pg=1,qs='',items=[],sTok=0,moreAvailable=true,loadingAll=false,filters={genre:'',format:'',min:0,sort:'source'};
@@ -386,11 +388,11 @@ async function diag(){const out=$('#dg'),sr=CS,w=t=>{out.textContent+=t+'\n'};ou
 const A={
   devOpen:dev,
   async devLogin(){const code=$('#dcode')?.value.trim();const r=await fetch('/api/dev/login',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({code})});if(!r.ok){$('#de').textContent='الكود غير صحيح';return}DEV=true;toast('تم دخول المطوّر');dev()},
-  async devLogout(){await fetch('/api/dev/logout',{method:'POST',credentials:'same-origin'});DEV=false;toast('تم تسجيل الخروج');setView()},
-  async newCode(){const r=await fetch('/api/dev/codes',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({label:'كود مطوّر'})});if(!r.ok)return toast('تعذر إنشاء الكود');const j=await r.json();dev();setTimeout(()=>{$('#newcode').textContent='الكود الجديد — انسخه الآن: '+j.code},0)},
-  async delCode(t){if(!confirm('إلغاء هذا الكود؟'))return;const r=await fetch('/api/dev/codes/'+encodeURIComponent(t.dataset.id),{method:'DELETE',credentials:'same-origin'});toast(r.ok?'تم إلغاء الكود':'لا يمكن إلغاء آخر كود');dev()},
-  async saveDevSettings(){const r=await fetch('/api/dev/settings',{method:'PUT',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({proxyTemplate:$('#devproxy').value.trim()})});toast(r.ok?'تم حفظ إعدادات البروكسي للجميع':'قالب البروكسي غير صالح')},
-  async saveDevSources(){try{const sources=JSON.parse($('#devsources').value);if(!Array.isArray(sources))throw Error();const r=await fetch('/api/dev/sources',{method:'PUT',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({sources})});toast(r.ok?'تم تحديث المصادر للجميع':'فشل حفظ المصادر')}catch{toast('JSON المصادر غير صالح') }},
+  async devLogout(){await fetch('/api/dev/logout',{method:'POST',headers:devHeaders(),credentials:'same-origin'});DEV=false;toast('تم تسجيل الخروج');setView()},
+  async newCode(){const r=await fetch('/api/dev/codes',{method:'POST',headers:devHeaders({'Content-Type':'application/json'}),credentials:'same-origin',body:JSON.stringify({label:'كود مطوّر'})});if(!r.ok)return toast('تعذر إنشاء الكود');const j=await r.json();dev();setTimeout(()=>{$('#newcode').textContent='الكود الجديد — انسخه الآن: '+j.code},0)},
+  async delCode(t){if(!confirm('إلغاء هذا الكود؟'))return;const r=await fetch('/api/dev/codes/'+encodeURIComponent(t.dataset.id),{method:'DELETE',headers:devHeaders(),credentials:'same-origin'});toast(r.ok?'تم إلغاء الكود':'لا يمكن إلغاء آخر كود');dev()},
+  async saveDevSettings(){const r=await fetch('/api/dev/settings',{method:'PUT',headers:devHeaders({'Content-Type':'application/json'}),credentials:'same-origin',body:JSON.stringify({proxyTemplate:$('#devproxy').value.trim()})});toast(r.ok?'تم حفظ إعدادات البروكسي للجميع':'قالب البروكسي غير صالح')},
+  async saveDevSources(){try{const sources=JSON.parse($('#devsources').value);if(!Array.isArray(sources))throw Error();const r=await fetch('/api/dev/sources',{method:'PUT',headers:devHeaders({'Content-Type':'application/json'}),credentials:'same-origin',body:JSON.stringify({sources})});toast(r.ok?'تم تحديث المصادر للجميع':'فشل حفظ المصادر')}catch{toast('JSON المصادر غير صالح') }},
   search(){qs=$('#q').value.trim();if(!hs&&qs)return sall();go('home')},sall,
   pick(t){hs=t.dataset.id;CS=SRCS.find(x=>x.id===hs)||SRCS[0];ls.s('hs',hs);qs='';$('#q').value='';go('home')},
   back(){qs='';$('#q').value='';picker()},
