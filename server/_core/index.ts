@@ -1,4 +1,5 @@
 import "dotenv/config";
+import crypto from "node:crypto";
 import express from "express";
 import { createServer } from "http";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
@@ -8,7 +9,7 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { getCompetitionSummary, getDates, getMatchById, getMatches } from "../data/matches";
 import type { MatchStatus } from "@shared/matches";
-import { publicSources, readStore, sourceCookie, writeStore } from "../data/dev-settings";
+import { codeHash, newCode, publicSources, readStore, sourceCookie, verifyCode, writeStore } from "../data/dev-settings";
 
 const allowedStatuses = new Set<MatchStatus>(["live", "scheduled", "done"]);
 const apiWindows = new Map<string, { startedAt: number; count: number }>();
@@ -19,6 +20,8 @@ const sourceHosts = new Set([
   "kingofshojo.com", "vortexscans.org", "asurascans.com",
 ]);
 const proxyWindows = new Map<string, { startedAt: number; count: number }>();
+const devSessions = new Map<string, number>();
+const devLoginWindows = new Map<string, { startedAt: number; count: number }>();
 const metadataCache = new Map<string, { at: number; value: unknown }>();
 const metadataWindows = new Map<string, { startedAt: number; count: number }>();
 
@@ -88,6 +91,29 @@ function apiRateLimit(req: express.Request, res: express.Response, next: express
   return next();
 }
 
+function sessionFrom(req: express.Request) {
+  const raw = req.headers.cookie?.match(/(?:^|;\s*)fate_dev_session=([^;]+)/)?.[1];
+  if (!raw) return false;
+  const expires = devSessions.get(raw) || 0;
+  if (expires < Date.now()) { devSessions.delete(raw); return false; }
+  return true;
+}
+
+function requireDeveloper(req: express.Request, res: express.Response, next: express.NextFunction) {
+  if (!sessionFrom(req)) return res.status(401).json({ error: "DEVELOPER_AUTH_REQUIRED" });
+  return next();
+}
+
+function devLoginRateLimit(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const address = req.ip || "unknown";
+  const now = Date.now();
+  const current = devLoginWindows.get(address);
+  if (!current || now - current.startedAt > 10 * 60_000) { devLoginWindows.set(address, { startedAt: now, count: 1 }); return next(); }
+  if (current.count >= 10) return res.status(429).json({ error: "LOGIN_RATE_LIMITED" });
+  current.count += 1;
+  return next();
+}
+
 function metadataRateLimit(req: express.Request, res: express.Response, next: express.NextFunction) {
   const address = req.ip || "unknown";
   const now = Date.now();
@@ -117,18 +143,48 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
   app.get("/api/source-config", (_req, res) => res.json({ sources: publicSources(), settings: readStore().settings }));
-  app.get("/api/dev/state", apiRateLimit, (_req, res) => {
-    const store = readStore();
-    return res.json({ sources: store.sources, settings: store.settings });
+  app.post("/api/dev/login", devLoginRateLimit, (req, res) => {
+    const code = typeof req.body?.code === "string" ? req.body.code.trim() : "";
+    if (!code || code.length > 128 || !verifyCode(code)) return res.status(401).json({ error: "INVALID_DEVELOPER_CODE" });
+    const token = crypto.randomBytes(32).toString("hex");
+    devSessions.set(token, Date.now() + 8 * 60 * 60 * 1000);
+    const secure = req.headers["x-forwarded-proto"] === "https" || process.env.NODE_ENV === "production" ? "; Secure" : "";
+    res.set("Set-Cookie", `fate_dev_session=${token}; Path=/; HttpOnly; SameSite=None; Max-Age=28800${secure}`);
+    return res.json({ ok: true });
   });
-  app.put("/api/dev/sources", apiRateLimit, (req, res) => {
+  app.post("/api/dev/logout", (req, res) => {
+    const raw = req.headers.cookie?.match(/(?:^|;\s*)fate_dev_session=([^;]+)/)?.[1];
+    if (raw) devSessions.delete(raw);
+    res.set("Set-Cookie", "fate_dev_session=; Path=/; HttpOnly; SameSite=None; Secure; Max-Age=0");
+    return res.json({ ok: true });
+  });
+  app.get("/api/dev/state", requireDeveloper, (_req, res) => {
+    const store = readStore();
+    return res.json({ codes: store.codes.map(c => ({ id: c.id, label: c.label, createdAt: c.createdAt, active: c.active })), sources: store.sources, settings: store.settings });
+  });
+  app.post("/api/dev/codes", requireDeveloper, (req, res) => {
+    const store = readStore();
+    const code = newCode();
+    store.codes.push({ id: crypto.randomUUID(), label: typeof req.body?.label === "string" ? req.body.label.slice(0, 80) : "كود مطوّر", hash: codeHash(code), createdAt: new Date().toISOString(), active: true });
+    writeStore(store);
+    return res.json({ code });
+  });
+  app.delete("/api/dev/codes/:id", requireDeveloper, (req, res) => {
+    const store = readStore();
+    const active = store.codes.filter(c => c.active);
+    if (active.length <= 1 && active.some(c => c.id === req.params.id)) return res.status(400).json({ error: "LAST_CODE" });
+    store.codes = store.codes.filter(c => c.id !== req.params.id);
+    writeStore(store);
+    return res.json({ ok: true });
+  });
+  app.put("/api/dev/sources", requireDeveloper, (req, res) => {
     const sources = Array.isArray(req.body?.sources) ? req.body.sources.slice(0, 100) : [];
     const clean = sources.filter((s: any) => typeof s?.id === "string" && typeof s?.name === "string" && /^https?:\/\//i.test(String(s.base))).map((s: any) => ({
       id: String(s.id).slice(0, 80), name: String(s.name).slice(0, 120), base: String(s.base).replace(/\/+$/, "").slice(0, 500), kind: String(s.kind || "madara").slice(0, 30), api: String(s.api || "").slice(0, 500), list: String(s.list || "").slice(0, 500), search: String(s.search || "").slice(0, 500), alt: Array.isArray(s.alt) ? s.alt.slice(0, 10).map(String) : [], sel: s.sel && typeof s.sel === "object" ? s.sel : {}, imgT: !!s.imgT, viaP: !!s.viaP, enabled: s.enabled !== false, cookie: String(s.cookie || "").slice(0, 12000),
     }));
     const store = readStore(); store.sources = clean; writeStore(store); return res.json({ ok: true, count: clean.length });
   });
-  app.put("/api/dev/settings", apiRateLimit, (req, res) => {
+  app.put("/api/dev/settings", requireDeveloper, (req, res) => {
     const proxyTemplate = typeof req.body?.proxyTemplate === "string" ? req.body.proxyTemplate.slice(0, 1000) : "/api/source-proxy?url={url}";
     if (!proxyTemplate.includes("{url}") || /javascript:|data:|@/.test(proxyTemplate)) return res.status(400).json({ error: "INVALID_PROXY_TEMPLATE" });
     const store = readStore(); store.settings.proxyTemplate = proxyTemplate; writeStore(store); return res.json({ ok: true });
