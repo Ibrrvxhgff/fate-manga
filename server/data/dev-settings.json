@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "codes": [
+    {
+      "id": "primary",
+      "label": "الرمز الأساسي",
+      "hash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+      "createdAt": "2026-11-24T00:00:00.000Z",
+      "active": true
+    }
+  ],
+  "sources": [],
+  "settings": {
+    "proxyTemplate": "/api/source-proxy?url={url}"
+  }
+}
