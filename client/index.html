@@ -69,30 +69,30 @@ let FAV=ls.g('fav',[]),P=ls.g('prog',{}),L=[],cur=null,R=null,io=null,W=null,tab
  imgT: تحميل الصور عبر طبقة الاتصال (Referer حقيقي) — يعمل مع الجسر/WebView */
 const MAD={kind:'madara',list:'/manga/{pp}',search:'/?s={q}&post_type=wp-manga&paged={p}',alt:['/?s=&post_type=wp-manga&paged={p}','/manga/?page={p}','/series/?page={p}']};
 const DS=[
-{id:'starz',name:'ستارز مانجا',base:'https://starzmanga.net',...MAD},
+{id:'starz',name:'ستارز مانجا',base:'https://starzmanga.net',icon:'https://starzmanga.net/wp-content/512starzmanga.png',...MAD},
 {id:'swat',name:'مانجا سوات (AppSwat)',base:'https://appswat.com',kind:'swat',api:'https://appswat.com/v2/api/v2/',list:'',search:''},
 {id:'mesh',name:'مانجا سوات (Mesh)',base:'https://meshmanga.com',kind:'swat',api:'https://appswat.com/v2/api/v2/',list:'',search:''},
-{id:'manonga',name:'مانجا أونلاين',base:'https://manonga.online',...MAD},
+{id:'manonga',name:'مانجا أونلاين',base:'https://manonga.online',icon:'https://www.onma.me/uploads/favicon.png',...MAD},
 {id:'hijala',name:'مانجا حجالة',base:'https://hijala.com',...MAD},
 {id:'azora',name:'أزورا',base:'https://azorafly.com',kind:'stream',list:'/series/?page={p}',search:'/series/?search={q}&page={p}',alt:['/series/']},
-{id:'mangalik',name:'مانجا ليك',base:'https://mangalik.net',...MAD},
+{id:'mangalik',name:'مانجا ليك',base:'https://mangalik.net',icon:'https://io.mangalik.net/wp-content/app/lekmanganet/512.png',...MAD},
 {id:'lava',name:'لافا سكانس',base:'https://lavascans.com',kind:'astro',imgT:true,list:'/series?page={p}',search:'/?s={q}&page={p}',alt:['/series/?page={p}','/?s=&page={p}','/']},
 {id:'teamx',name:'تيم إكس',base:'https://olympustaff.com',kind:'generic',list:'/series?page={p}',search:'/?s={q}&page={p}',alt:['/series/?page={p}','/']},
 {id:'3asq',name:'العاشق',base:'https://3asq.online',...MAD},
-{id:'mangatuk',name:'مانجا توك',base:'https://mangatuk.com',kind:'generic',list:'/manga/?page={p}',search:'/?s={q}&page={p}',alt:['/series/?page={p}','/?s=&page={p}','/']},
+{id:'mangatuk',name:'مانجا توك',base:'https://mangatuk.com',icon:'https://mangatuk.com/site-icons/17ca9e84/icon-192.png',kind:'generic',list:'/manga/?page={p}',search:'/?s={q}&page={p}',alt:['/series/?page={p}','/?s=&page={p}','/']},
 {id:'lagoonscans',name:'لاغون سكانز',base:'https://lagoonscans.com',...MAD},
 {id:'areascans',name:'AreaScans / KenManga',base:'https://ar.kenmanga.com',...MAD,search:'/?s={q}&page={p}'},
 {id:'mangatek',name:'مانجا تك',base:'https://mangatek.com',kind:'generic',list:'/manga-list?page={p}',search:'/manga-list?search={q}&page={p}',alt:['/manga-list','/']},
 {id:'kingofshojo',name:'King Of Shojo',base:'https://kingofshojo.com',...MAD},
 {id:'vortexscans',name:'Vortex Scans',base:'https://vortexscans.org',kind:'stream',list:'/series/?page={p}',search:'/series/?search={q}&page={p}',alt:['/series/']},
 {id:'asurascans',name:'Asura Scans',base:'https://asurascans.com',kind:'astro',imgT:true,list:'/browse/comics?page={p}',search:'/browse/comics?q={q}&page={p}',alt:['/browse/comics','/']}];
-const SV=6;
+const SV=7;
 const hue=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))%360;return`hsl(${h} 65% 50%)`};
 const norm=x=>{x.sel={list:'',title:'',chap:'',img:'',...x.sel};x.cookie=x.cookie||'';x.color=x.color||hue(x.id);x.icon=x.icon||'';x.viaP=!!x.viaP;x.api=x.api||'';x.kind=x.kind||'madara';x.alt=x.alt||[];x.imgT=!!x.imgT;return x};
 let SRCS=ls.g('srcs',null);
 if(!Array.isArray(SRCS)||!SRCS.length||ls.g('srcv',0)<SV){
   const old=Object.fromEntries((SRCS||[]).map(x=>[x.id,x])),custom=(SRCS||[]).filter(x=>/^s\d+$/.test(x.id));
-  SRCS=DS.map(d=>({...d,cookie:old[d.id]?.cookie||(d.id==='starz'?S.cookie:'')||'',sel:old[d.id]?.sel,icon:old[d.id]?.icon||'',autoIcon:old[d.id]?.autoIcon||''})).concat(custom);ls.s('srcv',SV);ls.s('srcs',SRCS)}
+  SRCS=DS.map(d=>({...d,cookie:old[d.id]?.cookie||(d.id==='starz'?S.cookie:'')||'',sel:old[d.id]?.sel,icon:old[d.id]?.icon||d.icon||'',autoIcon:old[d.id]?.autoIcon||''})).concat(custom);ls.s('srcv',SV);ls.s('srcs',SRCS)}
 SRCS.forEach(norm);
 let DEV=false;
 async function loadRemoteSourceConfig(){try{const r=await fetch('/api/source-config',{credentials:'same-origin'});if(!r.ok)return;const j=await r.json();for(const x of (j.sources||[])){const old=SRCS.find(s=>s.id===x.id);if(old)Object.assign(old,x);else SRCS.push(norm(x))}if(j.settings?.proxyTemplate)S.proxy=j.settings.proxyTemplate;SRCS.forEach(norm);ls.s('srcs',SRCS);ls.s('cfg',S)}catch(e){log('تعذر تحميل إعدادات المصادر: '+e.message)}}
@@ -150,7 +150,7 @@ async function get(url,o={}){
 
 /* ---------- parsers ---------- */
 const parse=h=>new DOMParser().parseFromString(h||'','text/html'),abs=(u,b)=>{try{return new URL(u,b).href}catch{return u}};
-const ia=e=>e?['data-src','data-lazy-src','data-original','data-cfsrc','data-url','src'].map(a=>(e.getAttribute(a)||'').trim()).find(x=>x&&!x.startsWith('data:'))||'':'';
+const ia=e=>{if(!e)return'';for(const a of['data-src','data-lazy-src','data-original','data-cfsrc','data-url','data-srcset','data-lazy-srcset','srcset','src']){const v=(e.getAttribute(a)||'').trim();if(!v||v.startsWith('data:'))continue;return v.split(',')[0].trim().split(/\s+/)[0]}return''};
 const PATH=/\/(manga|series|serie|comics?|webtoon|manhwa|manhua|work|title|read)\/[^/?#]+/i;
 const IMGX=/\.(?:jpe?g|png|webp|avif|gif)(?:[?#]|$)/i,str=x=>typeof x==='string'?x:'';
 const LIST_SEL='.page-item-detail,.c-tabs-item__row,.popular-item-wrap,.listupd .bs,.listupd .bsx,.utao,.series-card,.manga-card,.app-series-card';
@@ -251,8 +251,8 @@ async function swatImgs(u,sr){const id=sid(u);let last=Error('لا صور');
 /* ---------- القوائم: يجرّب المسار الأساسي ثم البدائل ويتذكر اللي اشتغل ---------- */
 async function fetchList(sr,k,p){
   if(sr.kind==='swat')return swatList(sr,k,p);
-  const T=k?[sr.search,'/?s={q}&page={p}','/?s={q}&post_type=wp-manga&paged={p}']:[sr.ok,sr.list,...(sr.alt||[])],seen=new Set(),errs=[];let cf=null;
-  for(const t of T){if(!t||seen.has(t))continue;seen.add(t);const u=sr.base+tpl(t,{p,q:k});
+  const terms=k?[...new Set([k.trim(),k.trim().replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/\s+/g,' ')].filter(Boolean))]:[''],T=k?[sr.search,...(sr.searchAlt||[]),'/?s={q}&page={p}','/?s={q}&post_type=wp-manga&paged={p}']:[sr.ok,sr.list,...(sr.alt||[])],seen=new Set(),errs=[];let cf=null;
+  for(const term of terms)for(const t of T){if(!t||seen.has(t+'|'+term))continue;seen.add(t+'|'+term);const u=sr.base+tpl(t,{p,q:term});
     try{const r=await get(u,{src:sr}),l=listing(parse(r.text),u,sr);
       if(l.length){if(!k&&sr.ok!==t){sr.ok=t;ls.s('srcs',SRCS)}return{items:l,u}}errs.push('فارغ: '+u)}
     catch(e){errs.push(e.message+'  ←  '+u);if(e.cf){cf=e;break}}}
@@ -276,7 +276,9 @@ async function hydrate(){const els=q(main,'img[data-cs]');let i=0;
 function go(t){tab=t;document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('sel',b.dataset.t===t));({home,lib,cf,set:setView})[t]()}
 const icoSrc=x=>{if(x.icon)return x.icon;if(x.autoIcon)return x.autoIcon;try{return'https://www.google.com/s2/favicons?domain='+encodeURIComponent(new URL(x.base).hostname)+'&sz=128'}catch{return x.base+'/favicon.ico'}};
 const ico=x=>`<img data-ico="${esc(x.id)}" alt="${esc(x.name)}" referrerpolicy="no-referrer" src="${esc(icoSrc(x))}" onerror="icoErr(this)">`;
-function icoErr(el){const x=SRCS.find(s=>s.id===el.dataset.ico),st=+(el.dataset.st||0);el.dataset.st=st+1;if(st===0&&x){el.src=x.base+'/favicon.ico';return}el.outerHTML='<i>'+(el.alt[0]||'?')+'</i>'}
+function icoErr(el){const x=SRCS.find(s=>s.id===el.dataset.ico),st=+(el.dataset.st||0);el.dataset.st=st+1;if(!x)return el.outerHTML='<i>'+(el.alt[0]||'?')+'</i>';
+  const fallbacks=[x.autoIcon,'https://www.google.com/s2/favicons?domain='+encodeURIComponent(new URL(x.base).hostname)+'&sz=128',x.base+'/favicon.ico'].filter((v,i,a)=>v&&v!==el.src&&a.indexOf(v)===i);
+  if(fallbacks[st]){el.src=fallbacks[st];return}el.outerHTML='<i>'+(el.alt[0]||'?')+'</i>'}
 /* أيقونات تلقائية: تُقرأ من صفحة الموقع (apple-touch-icon / icon / og:image) وتُحفظ */
 async function autoIcons(){for(const x of SRCS){if(x.icon||x.autoIcon)continue;
   try{const r=await get(x.base+'/',{src:x}),d=parse(r.text);let h='';
