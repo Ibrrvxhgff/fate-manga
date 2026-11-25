@@ -1,4 +1,6 @@
-import { createApp } from "../server/_core/index.ts";
+// The production build creates this bundled ESM entrypoint before Vercel packages the function.
+// @ts-expect-error The generated bundle has no standalone declaration file.
+import { createApp } from "../dist/index.js";
 
 const appPromise = createApp();
 
