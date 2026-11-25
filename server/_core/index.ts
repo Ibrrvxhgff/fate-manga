@@ -114,17 +114,27 @@ function proxyRateLimit(req: express.Request, res: express.Response, next: expre
   return next();
 }
 
-async function fetchSource(url: string) {
+type ForwardedSourceHeaders = { cookie?: string; userAgent?: string; referer?: string };
+
+function safeForwardedHeader(value: unknown, maxLength: number) {
+  if (typeof value !== "string" || value.length > maxLength || /[\r\n]/.test(value)) return "";
+  return value;
+}
+
+async function fetchSource(url: string, forwarded: ForwardedSourceHeaders = {}) {
   let current = url;
   for (let i = 0; i < 4; i += 1) {
     await assertSafeSourceUrl(current);
+    const forwardedCookie = safeForwardedHeader(forwarded.cookie, 12_000);
+    const forwardedUserAgent = safeForwardedHeader(forwarded.userAgent, 500);
+    const forwardedReferer = safeForwardedHeader(forwarded.referer, 1_000);
     const upstream = await fetch(current, {
       redirect: "manual",
       headers: {
-        "User-Agent": "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 Chrome/149 Safari/537.36",
+        "User-Agent": forwardedUserAgent || "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 Chrome/149 Safari/537.36",
         "Accept-Language": "ar,en;q=0.8",
-        Referer: `${new URL(current).origin}/`,
-        ...(sourceCookie(new URL(current).hostname) ? { Cookie: sourceCookie(new URL(current).hostname) } : {}),
+        Referer: forwardedReferer || `${new URL(current).origin}/`,
+        ...(forwardedCookie || sourceCookie(new URL(current).hostname) ? { Cookie: forwardedCookie || sourceCookie(new URL(current).hostname) } : {}),
       },
     });
     if (upstream.status >= 300 && upstream.status < 400) {
@@ -284,7 +294,11 @@ export async function createApp() {
     const target = typeof req.query.url === "string" ? req.query.url : "";
     if (!isAllowedSourceUrl(target)) return res.status(400).json({ error: "SOURCE_NOT_ALLOWED" });
     try {
-      const upstream = await fetchSource(target);
+      const upstream = await fetchSource(target, {
+        cookie: typeof req.headers["x-fwd-cookie"] === "string" ? req.headers["x-fwd-cookie"] : "",
+        userAgent: typeof req.headers["x-fwd-user-agent"] === "string" ? req.headers["x-fwd-user-agent"] : "",
+        referer: typeof req.headers["x-fwd-referer"] === "string" ? req.headers["x-fwd-referer"] : "",
+      });
       const body = Buffer.from(await upstream.arrayBuffer());
       if (body.byteLength > 20 * 1024 * 1024) return res.status(413).json({ error: "RESPONSE_TOO_LARGE" });
       res.status(upstream.status);
