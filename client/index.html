@@ -347,7 +347,7 @@ addEventListener('keydown',e=>{if($('#rd').hidden)return;const k=e.key;if(k==='A
 function cf(){main.innerHTML=`<p class="c" style="padding:6px" id="cfs">ميزة Cloudflare متاحة للجميع. ${hasBridge()?'تم اكتشاف جسر WebView — سيتم سحب الكوكيز تلقائياً بعد الحل.':'افتح المصدر، أكمل تحدي Cloudflare، ثم الصق Cookie يدويًا هنا.'} يتم حفظه محليًا على جهازك ولا يُرسل إلى خادم Fate.</p>
   <div class="bar"><select id="cfsrc">${SRCS.map((x,i)=>`<option value="${i}" ${x===CS?'selected':''}>${esc(x.name)}</option>`).join('')}</select><button data-act="cfload">تحميل</button><button data-act="cfopen">فتح في نافذة</button><button class="acc" data-act="cfsync">انتهيت — حدّث الترويسات والكوكيز</button></div>
   <iframe id="cff" src="${esc(CS.base)}"></iframe><p class="c" style="padding:6px;font-size:.8rem">إذا ظهرت الصفحة فارغة فالموقع يمنع التضمين: استخدم «فتح في نافذة»، ثم ارجع والصق Cookie من أدوات المتصفح.</p>
-  <textarea id="cfc" placeholder="Cookie يدوي: cf_clearance=...">${esc(CS.cookie)}</textarea><div class="bar"><button data-act="cfsave">حفظ الكوكيز</button></div>`}
+  <textarea id="cfc" placeholder="Cookie يدوي: cf_clearance=...">${esc(CS.cookie)}</textarea><div class="bar"><button class="acc" data-act="cfmanual">جلب الكوكيز يدويًا</button><button data-act="cfsave">حفظ الكوكيز</button></div>`}
 async function sync(){const st=$('#cfs'),w=window;let got=false;
   try{let c,ua;if(w.flutter_inappwebview?.callHandler){c=await w.flutter_inappwebview.callHandler('getCookies',CS.base);ua=await w.flutter_inappwebview.callHandler('getUserAgent')}else if(w.Android?.getCookies){c=await w.Android.getCookies(CS.base);ua=await w.Android.getUserAgent?.()}else if(w.nativeGetCookies)c=await w.nativeGetCookies(CS.base);
     if(c){CS.cookie=String(c);if(ua)S.ua=String(ua);save();got=true}}catch(e){log(e.message)}
@@ -403,7 +403,7 @@ const A={
   tocf(t){CS=SRCS.find(x=>x.id===t.dataset.id)||CS;go('cf')},retry(){home()},more:loadAll,open(t){detail(t.dataset.u)},
   read(t){read(+t.dataset.i,+t.dataset.p||0)},close:closeR,next,prev,rset(){const s=$('#rs');s.hidden=!s.hidden;s.innerHTML=SCH[1][2].map(fld).join('')},
   fav(){const u=cur.m.u,i=FAV.findIndex(f=>f.u===u);i<0?FAV.push(cur.m):FAV.splice(i,1);ls.s('fav',FAV);detail(u)},
-  cfload(){$('#cff').src=CS.base},cfopen(){window.open(CS.base,'_blank')},cfsync:sync,cfsave(){CS.cookie=$('#cfc').value.trim().replace(/;\s*(?=\S)/g,'; ').replace(/;\s*$/,'');save();toast(/cf_clearance=/.test(CS.cookie)?'تم الحفظ ✓ (فيه cf_clearance)':'تم الحفظ — بس ما في cf_clearance، ما راح تفك حماية Cloudflare')},
+  cfload(){$('#cff').src=CS.base},cfopen(){window.open(CS.base,'_blank')},cfsync:sync,cfmanual(){const value=window.prompt('الصق Cookies الخاصة بـ '+CS.name+' هنا. ابحث عن cf_clearance بعد حل تحدي Cloudflare:','');if(value===null)return;$('#cfc').value=value.trim();A.cfsave()},cfsave(){CS.cookie=$('#cfc').value.trim().replace(/;\s*(?=\S)/g,'; ').replace(/;\s*$/,'');save();toast(/(?:^|;\s*)cf_clearance=/.test(CS.cookie)?'تم الحفظ ✓ — تم العثور على cf_clearance':'تم الحفظ، لكن لم نجد cf_clearance في النص')},
   diag,
   async test(){cache.clear();try{const r=await get(CS.base+'/');toast('✓ '+r.status+' — '+listing(parse(r.text),CS.base,CS).length+' عنصر')}catch(e){toast('✗ '+e.message)}},
   clr(){cache.clear();toast('تم مسح الكاش')},exp(){$('#ex').value=JSON.stringify({cfg:S,srcs:SRCS,fav:FAV,prog:P})},
