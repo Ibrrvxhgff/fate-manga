@@ -331,7 +331,10 @@ export async function createApp() {
   );
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
-    const { setupVite } = await import("./vite");
+    const dynamicImport = new Function("specifier", "return import(specifier)") as (
+      specifier: string,
+    ) => Promise<typeof import("./vite")>;
+    const { setupVite } = await dynamicImport("./vite");
     await setupVite(app, server);
   } else if (!process.env.VERCEL) {
     serveStatic(app);
