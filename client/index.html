@@ -190,7 +190,21 @@ function chAnch(d,s){if(s)return q(d,s);for(const x of CHS){const a=q(d,x);if(a.
 const chN=(t,h)=>{const m=h.match(/(?:chapter|ch|episode|%d9%81%d8%b5%d9%84|فصل)[-_/ ]*(\d+(?:[.-]\d+)?)/i)||t.match(/\d+(?:[.-]\d+)?/);return m?parseFloat((m[1]||m[0]).replace('-','.')):-1};
 const chapsOf=(d,u)=>{const seen=new Set();let r=chAnch(d,sl('chap')).map(a=>{const h=abs(a.getAttribute('href'),u);if(!h||h.includes('#')||seen.has(h))return;seen.add(h);const t=a.textContent.trim().replace(/\s+/g,' ');return{t,u:h,n:chN(t,h)}}).filter(Boolean).sort((a,b)=>a.n-b.n);
   if(!r.length)r=astroChaps(d,srcOf(u));return r};
-function sourceGenres(d,sr){const selectors=[sr.sel?.genre,sr.sel?.genres,'.genres-content a','.manga-genres a','.post-content_item.manga-genre a','.post-content_item[class*="genre"] a','.genres a','.genre a','a[href*="/genre/"]','a[href*="/genres/"]'].filter(Boolean),out=[];for(const sel of selectors){for(const el of q(d,sel)){const text=el.textContent.trim().replace(/\s+/g,' ');if(text&&text.length<60&&!/^(genre|genres|التصنيف|التصنيفات)$/i.test(text)&&!out.includes(text))out.push(text)}if(out.length)break}return out.slice(0,12)}
+const GENRE_AR={action:'أكشن',adventure:'مغامرة',comedy:'كوميديا',drama:'دراما',fantasy:'فانتازيا',romance:'رومانسية',school:'مدرسي',sliceoflife:'حياة يومية',
+  'slice of life':'حياة يومية',supernatural:'خارق للطبيعة',historical:'تاريخي',horror:'رعب',mystery:'غموض',psychological:'نفسي',thriller:'إثارة',
+  martialarts:'فنون قتالية','martial arts':'فنون قتالية',shounen:'شونين',shoujo:'شوجو',seinen:'سينين',josei:'جوسي',sports:'رياضي',
+  sci-fi:'خيال علمي',scifi:'خيال علمي',isekai:'إيسيكاي',magic:'سحر',manhua:'مانها صينية',manhwa:'مانهوا كورية',webtoon:'ويب تون',
+  'adult content':'محتوى للبالغين','mature content':'محتوى ناضج'};
+const genreLabel=x=>{const t=String(x??'').replace(/\s+/g,' ').trim(),k=t.toLowerCase().replace(/[._-]/g,' ').replace(/\s+/g,' ');return GENRE_AR[k.replace(/ /g,'')]||GENRE_AR[k]||t};
+function addGenres(out,v){if(Array.isArray(v))return v.forEach(x=>addGenres(out,x));if(v&&typeof v==='object')return addGenres(out,v.name||v.title||v.label||v.genre||v.genres);if(typeof v!=='string')return;v.split(/[,،|;；]+/).map(x=>genreLabel(x)).forEach(x=>{if(x&&x.length<60&&!/^(genre|genres|category|categories|التصنيف|التصنيفات|النوع)$/i.test(x)&&!out.includes(x))out.push(x)})}
+function sourceGenres(d,sr){const out=[],selectors=[sr.sel?.genre,sr.sel?.genres,'.genres-content a','.manga-genres a','.post-content_item.manga-genre a','.post-content_item[class*="genre"] a','.genres a','.genre a','a[href*="/genre/"]','a[href*="/genres/"]'].filter(Boolean);
+  /* WordPress and source-specific linked taxonomies. */
+  for(const sel of selectors)q(d,sel).forEach(el=>addGenres(out,el.textContent));
+  /* JSON-LD is the canonical source on MangaTok and several modern themes. */
+  q(d,'script[type="application/ld+json"]').forEach(el=>{try{const j=JSON.parse(el.textContent);walk(j,(o,k)=>{if(k==='genre'||k==='genres'||k==='category'||k==='categories')addGenres(out,o)})}catch{}});
+  /* Manonga and similar Arabic themes print التصنيفات as a text field, not links. */
+  q(d,'body *').forEach(el=>{if(el.children.length>8)return;const t=el.textContent.replace(/\s+/g,' ').trim(),m=t.match(/(?:التصنيفات|التصنيف|genres?|categories?)\s*[:：]\s*(.+?)(?=\s+(?:الزيارة|views?|status|الحالة|تاريخ|author|المؤلف)\s*[:：]|$)/i);if(m)addGenres(out,m[1])});
+  return out.slice(0,18)}
 async function ajaxCh(d,u){const sr=srcOf(u),hd={'X-Requested-With':'XMLHttpRequest','Content-Type':'application/x-www-form-urlencoded'};
   try{const r=await get(u.replace(/\/?$/,'/')+'ajax/chapters/',{method:'POST',body:'',headers:hd,src:sr}),c=chapsOf(parse(r.text),u);if(c.length)return c}catch{}
   const id=d.querySelector('#manga-chapters-holder')?.dataset.id||d.querySelector('input.rating-post-id')?.value;
@@ -249,8 +263,9 @@ async function swatChaps(sr,id,j){
     try{let o=[],nx=path,n=0;while(nx&&n++<30){const r=await swatJ(sr,nx);o=o.concat(Array.isArray(r)?r:r.results||[]);nx=Array.isArray(r)?null:r.next}
       if(ok(o)&&mine(o,path.startsWith('chapters/'))){a=o;break}}catch(e){log(e.message)}}
   return(a||[]).map(x=>{const n=parseFloat(x.chapter);return{t:'الفصل '+x.chapter,u:sr.base+'/chapter/'+x.id,n:isNaN(n)?-1:n}}).sort((a,b)=>a.n-b.n)}
-async function swatDetail(u){const sr=srcOf(u),id=sid(u),j=await swatJ(sr,`series/${id}/`);
-  return{chs:await swatChaps(sr,id,j),t:String(j.title||j.name||id),cv:posterOf(j,sr.base+'/')}}
+async function swatDetail(u){const sr=srcOf(u),id=sid(u),j=await swatJ(sr,`series/${id}/`),genres=[];
+  addGenres(genres,j.genres||j.genre||j.categories||j.category||j.tags);
+  return{chs:await swatChaps(sr,id,j),t:String(j.title||j.name||id),cv:posterOf(j,sr.base+'/'),genres}}
 function jsonImgs(j,B){let best=[];const pick=x=>{if(typeof x==='string')return x;if(x&&typeof x==='object')for(const k of['url','image','src','file','original','large','medium','path','link']){const v=x[k];if(typeof v==='string')return v;if(v&&typeof v==='object'&&typeof v.url==='string')return v.url}return''};
   walk(j,(o,k)=>{if(!Array.isArray(o)||!o.length)return;const a=o.map(pick).filter(s=>s&&(IMGX.test(s)||(/image|page|photo|file|picture/i.test(k||'')&&/^(https?:)?\//.test(s))));if(a.length>best.length)best=a});
   return best.map(x=>abs(x,B))}
@@ -323,7 +338,7 @@ function lib(){const hs2=Object.entries(P).sort((a,b)=>b[1].at-a[1].at);
   main.innerHTML=`<h3>تابع القراءة</h3><div class="grid">${hs2.map(([u,p])=>card({u,t:p.t+' · ف'+(p.n??'')+'',c:p.c})).join('')||'<p class="c">لا شيء بعد</p>'}</div><h3>المفضلة</h3><div class="grid">${FAV.map(card).join('')||'<p class="c">لا شيء بعد</p>'}</div>`;hydrate()}
 async function detail(u){CS=srcOf(u);main.innerHTML='<p class="c">جارٍ التحميل…</p>';
   try{let chs,t,cv,genres=[];
-    if(CS.kind==='swat')({chs,t,cv}=await swatDetail(u));
+    if(CS.kind==='swat')({chs,t,cv,genres}=await swatDetail(u));
     else if(CS.id==='azora'){
       try{({chs,t,cv}=await azoraDetail(u));try{const d=parse((await get(u,{src:CS})).text);genres=sourceGenres(d,CS)}catch{}}catch{const r=await get(u),d=parse(r.text);genres=sourceGenres(d,CS);chs=chapsOf(d,u);if(!chs.length)chs=await ajaxCh(d,u);const h=d.querySelector('h1,.post-title h1'),ci=d.querySelector('.summary_image img,.thumb img,#mangaCover,.poster img,img.attachment-post-thumbnail')||d.querySelector('img');t=h?h.textContent.trim():u;cv=ci?abs(ia(ci),u):''}
     } else{const r=await get(u),d=parse(r.text);genres=sourceGenres(d,CS);chs=chapsOf(d,u);if(!chs.length)chs=await ajaxCh(d,u);
