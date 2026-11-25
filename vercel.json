@@ -5,7 +5,7 @@
   "functions": {
     "api/index.ts": {
       "runtime": "nodejs22.x",
-      "includeFiles": ["server/data/dev-settings.json"]
+      "includeFiles": "server/data/dev-settings.json"
     }
   },
   "rewrites": [
