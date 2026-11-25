@@ -138,6 +138,13 @@ async function raw(url,o){const sr=o.src||CS;
       try{return await rawM(url,o,m2)}catch(e2){throw Error('البروكسي غير متصل ('+S.proxy.split('?')[0]+') والاتصال المباشر فشل: '+e2.message)}}}
   return rawM(url,o,modeOf())}
 const cache=new Map();
+const AZORA_CACHE_KEY='azoraDetailCache',AZORA_CACHE_TTL=24*60*60*1000;
+const azoraCache=()=>{const x=ls.g(AZORA_CACHE_KEY,{});return x&&typeof x==='object'?x:{}};
+function azoraSlug(u){try{const p=new URL(u).pathname.split('/').filter(Boolean);return decodeURIComponent(p[p.length-1]||'')}catch{return u.split('/').filter(Boolean).pop()||''}}
+function azoraPick(o,keys){if(!o||typeof o!=='object')return'';for(const k of keys){const v=o[k];if(typeof v==='string'&&v.trim())return v;if(v&&typeof v==='object'){const x=v.url||v.src||v.href||v.original||v.large||v.medium;if(typeof x==='string'&&x.trim())return x}}return''}
+function azoraWalk(o,fn){if(Array.isArray(o))o.forEach(x=>azoraWalk(x,fn));else if(o&&typeof o==='object'){fn(o);Object.values(o).forEach(x=>azoraWalk(x,fn))}}
+function azoraInfoShape(raw,u){const B=srcOf(u).base+'/',root=raw?.data||raw?.result||raw?.anime||raw;let title='',cover='',chapters=[];azoraWalk(root,o=>{if(!title)title=azoraPick(o,['title','name','series_title','anime_title']);if(!cover)cover=azoraPick(o,['cover','cover_url','poster','thumbnail','image','image_url','picture']);const number=o.chapter??o.number??o.chapter_number??o.episode;if(number!==undefined&&number!==null){const n=parseFloat(String(number).replace(',','.'));const href=azoraPick(o,['url','link','href','chapter_url','slug']);if(href||!Number.isNaN(n))chapters.push({t:'الفصل '+String(number),u:href?abs(href,B):u,n:Number.isNaN(n)?-1:n})}});const seen=new Set();chapters=chapters.filter(x=>{const k=x.u+'|'+x.t;if(seen.has(k))return false;seen.add(k);return true}).sort((a,b)=>a.n-b.n);return{t:title||'',cv:cover?abs(cover,B):'',chs:chapters}}
+async function azoraDetail(u){const key=azoraSlug(u),store=azoraCache(),hit=store[key];if(hit&&Date.now()-hit.at<AZORA_CACHE_TTL&&hit.value)return hit.value;const endpoint='https://api.nezuko-wa.web.id/api/anime/azorafly-info?slug='+encodeURIComponent(key);try{const r=await get(endpoint,{src:srcOf(u)}),raw=JSON.parse(r.text),value=azoraInfoShape(raw,u);if(!value.t&&!value.chs.length)throw Error('واجهة Azora API لم ترجع تفاصيل صالحة');store[key]={at:Date.now(),value};ls.s(AZORA_CACHE_KEY,store);return value}catch(e){log('Azora API: '+e.message);throw e}}
 /* 404 ≠ Cloudflare: الخطأ يوصف بدقة، و Cloudflare فقط لما يظهر تحدٍّ فعلي */
 async function get(url,o={}){
   const bin=o.type==='blob',k=(o.method||'GET')+url+(o.body||'')+(o.headers?JSON.stringify(o.headers):''),c=cache.get(k);
@@ -314,7 +321,9 @@ function lib(){const hs2=Object.entries(P).sort((a,b)=>b[1].at-a[1].at);
 async function detail(u){CS=srcOf(u);main.innerHTML='<p class="c">جارٍ التحميل…</p>';
   try{let chs,t,cv;
     if(CS.kind==='swat')({chs,t,cv}=await swatDetail(u));
-    else{const r=await get(u),d=parse(r.text);chs=chapsOf(d,u);if(!chs.length)chs=await ajaxCh(d,u);
+    else if(CS.id==='azora'){
+      try{({chs,t,cv}=await azoraDetail(u))}catch{const r=await get(u),d=parse(r.text);chs=chapsOf(d,u);if(!chs.length)chs=await ajaxCh(d,u);const h=d.querySelector('h1,.post-title h1'),ci=d.querySelector('.summary_image img,.thumb img,#mangaCover,.poster img,img.attachment-post-thumbnail')||d.querySelector('img');t=h?h.textContent.trim():u;cv=ci?abs(ia(ci),u):''}
+    } else{const r=await get(u),d=parse(r.text);chs=chapsOf(d,u);if(!chs.length)chs=await ajaxCh(d,u);
       const h=d.querySelector(sl('title')||'.post-title h1')||d.querySelector('h1'),ci=d.querySelector('.summary_image img,.thumb img,#mangaCover,.poster img,img.attachment-post-thumbnail')||d.querySelector('img');
       t=h?([...h.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent.trim()).filter(Boolean).pop()||h.textContent.trim()):u;cv=ci?abs(ia(ci),u):''}
     cur={m:{u,t,c:cv},chs};const p=P[u],isF=FAV.some(f=>f.u===u);
