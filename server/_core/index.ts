@@ -262,7 +262,14 @@ export async function createApp() {
     }).map((s: any) => ({
       id: String(s.id).slice(0, 80), name: String(s.name).slice(0, 120), base: String(s.base).replace(/\/+$/, "").slice(0, 500), kind: String(s.kind || "madara").slice(0, 30), api: String(s.api || "").slice(0, 500), list: String(s.list || "").slice(0, 500), search: String(s.search || "").slice(0, 500), alt: Array.isArray(s.alt) ? s.alt.slice(0, 10).map(String) : [], sel: s.sel && typeof s.sel === "object" ? s.sel : {}, imgT: !!s.imgT, viaP: !!s.viaP, enabled: s.enabled !== false, cookie: String(s.cookie || "").slice(0, 12000),
     }));
-    const store = readStore(); store.sources = clean; writeStore(store); return res.json({ ok: true, count: clean.length });
+    const store = readStore(); store.sources = clean;
+    try {
+      writeStore(store);
+    } catch (error) {
+      console.error("[Sources] Failed to persist source configuration:", error);
+      return res.status(503).json({ error: "SOURCE_STORAGE_UNAVAILABLE", message: "لا يتوفر مخزن دائم لحفظ المصادر على هذا النشر" });
+    }
+    return res.json({ ok: true, count: clean.length });
   });
   app.put("/api/dev/settings", sameOriginMutation, requireDeveloper, requireDeveloperCsrf, (req, res) => {
     const proxyTemplate = typeof req.body?.proxyTemplate === "string" ? req.body.proxyTemplate.slice(0, 1000) : "/api/source-proxy?url={url}";
