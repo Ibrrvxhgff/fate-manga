@@ -16,9 +16,9 @@ import { codeHash, effectiveSources, newCode, publicSources, readStore, sourceCo
 const allowedStatuses = new Set<MatchStatus>(["live", "scheduled", "done"]);
 const apiWindows = new Map<string, { startedAt: number; count: number }>();
 const sourceHosts = new Set([
-  "starzmanga.net", "appswat.com", "meshmanga.com", "manonga.online", "hijala.com",
+  "starzmanga.net", "appswat.com", "manonga.online", "hijala.com",
   "azorafly.com", "mangalik.net", "lavascans.com", "olympustaff.com", "3asq.online",
-  "mangatuk.com", "lagoonscans.com", "ar.kenmanga.com", "mangatek.com",
+  "mangatuk.com", "lagoonscans.com", "ar.kenmanga.com",
   "kingofshojo.com", "vortexscans.org", "asurascans.com",
 ]);
 const proxyWindows = new Map<string, { startedAt: number; count: number }>();
