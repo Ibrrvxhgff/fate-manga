@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Fate Manga — الإصدار 1.2026</title>
+<style>
+:root{
+  --bg:#080b12;--bg-soft:#0d1220;--fg:#f5f7fb;--muted:#8f9bb2;--card:#111827;--card-2:#151e2e;
+  --line:rgba(160,177,214,.14);--line-strong:rgba(160,177,214,.24);--acc:#8b5cf6;--acc-2:#22d3ee;
+  --good:#67e8a5;--warn:#f6c667;--shadow:0 18px 50px rgba(0,0,0,.28);--r:16px;--cols:3
+}
+[data-theme=light]{--bg:#f3f5fb;--bg-soft:#e9edf7;--fg:#101525;--muted:#61708a;--card:#ffffff;--card-2:#f5f7fc;--line:rgba(31,43,73,.12);--line-strong:rgba(31,43,73,.22);--shadow:0 18px 45px rgba(46,61,103,.12)}
+[data-theme=amoled]{--bg:#000;--bg-soft:#050509;--card:#08080d;--card-2:#101017;--line:rgba(255,255,255,.12);--line-strong:rgba(255,255,255,.22)}
+[data-theme=sepia]{--bg:#f0e4cd;--bg-soft:#e8d8b9;--fg:#382d20;--muted:#77634b;--card:#fff6e4;--card-2:#f4e7cf;--line:rgba(86,63,34,.15);--line-strong:rgba(86,63,34,.25);--acc:#a45136}
+[data-red=true]{--acc:#ff3864;--acc-2:#ff8a5c}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;min-height:100vh;background:radial-gradient(900px 430px at 100% -5%,color-mix(in srgb,var(--acc) 14%,transparent),transparent 65%),radial-gradient(700px 380px at 0 36%,color-mix(in srgb,var(--acc-2) 8%,transparent),transparent 68%),var(--bg);color:var(--fg);font:500 1rem/1.55 system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;padding-top:env(safe-area-inset-top);overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.24;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(to bottom,black,transparent 72%);z-index:-1}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+.app-header{position:sticky;top:0;z-index:10;display:grid;grid-template-columns:auto minmax(120px,1fr) auto auto;align-items:center;gap:10px;padding:11px clamp(12px,3vw,28px);background:color-mix(in srgb,var(--bg) 78%,transparent);border-bottom:1px solid var(--line);backdrop-filter:blur(22px) saturate(145%);box-shadow:0 8px 30px rgba(0,0,0,.12)}
+.brand-lockup{display:flex;align-items:center;gap:9px;min-width:max-content;direction:ltr}.brand-mark{display:grid;place-items:center;width:38px;height:38px;border-radius:13px;color:#fff;font:900 1.35rem/1 Georgia,serif;background:linear-gradient(145deg,var(--acc),#5b21b6);box-shadow:0 8px 24px color-mix(in srgb,var(--acc) 32%,transparent),inset 0 1px 0 rgba(255,255,255,.38);transform:rotate(-4deg)}.brand-copy{display:flex;flex-direction:column;line-height:1.05;text-align:left}.brand-copy strong{font:800 1.06rem/1.1 Georgia,serif;letter-spacing:.02em}.brand-copy small{color:var(--muted);font-size:.62rem;margin-top:4px;letter-spacing:.02em;direction:rtl}
+.search-box{display:flex;align-items:center;gap:7px;min-width:0;padding:0 11px;border:1px solid var(--line);border-radius:14px;background:color-mix(in srgb,var(--card) 86%,transparent);transition:.2s}.search-box:focus-within{border-color:color-mix(in srgb,var(--acc) 70%,var(--line));box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 13%,transparent)}.search-glyph{color:var(--acc-2);font-size:1.35rem;line-height:1}.search-box input{width:100%;min-width:0;border:0;background:transparent;padding:10px 2px;color:var(--fg);outline:0}.search-box input::placeholder{color:var(--muted)}
+input,select,textarea,button{border:1px solid var(--line-strong);border-radius:12px;padding:9px 11px;background:var(--card);color:var(--fg);transition:border-color .2s,box-shadow .2s,transform .2s,background .2s}input:focus,select:focus,textarea:focus{outline:0;border-color:color-mix(in srgb,var(--acc) 75%,white 0%);box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 12%,transparent)}button{font-weight:700}button:hover{transform:translateY(-1px);border-color:var(--line-strong)}button:active{transform:translateY(0) scale(.98)}button:focus-visible,a:focus-visible{outline:2px solid var(--acc-2);outline-offset:3px}.acc{background:linear-gradient(135deg,var(--acc),color-mix(in srgb,var(--acc) 62%,#312e81));color:#fff;border:0;box-shadow:0 8px 22px color-mix(in srgb,var(--acc) 24%,transparent)}.search-btn{white-space:nowrap}.all-btn{width:42px;padding-inline:8px;background:color-mix(in srgb,var(--acc-2) 12%,var(--card));border-color:color-mix(in srgb,var(--acc-2) 38%,var(--line))}
+main{position:relative;max-width:1180px;margin:0 auto;padding:26px clamp(14px,3vw,34px) 108px}.hero{position:relative;overflow:hidden;margin:4px 0 28px;padding:clamp(22px,5vw,46px);border:1px solid var(--line);border-radius:28px;background:linear-gradient(135deg,color-mix(in srgb,var(--card) 95%,transparent),color-mix(in srgb,var(--acc) 9%,var(--card)));box-shadow:var(--shadow)}.hero::after{content:"";position:absolute;width:240px;height:240px;left:-55px;bottom:-110px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--acc-2) 32%,transparent),transparent 68%);filter:blur(3px);opacity:.7}.hero-top{display:flex;align-items:center;justify-content:space-between;gap:12px}.eyebrow{color:var(--acc-2);font-size:.7rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.live-chip,.count-pill,.score-pill{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line-strong);border-radius:999px;padding:4px 9px;background:color-mix(in srgb,var(--card-2) 78%,transparent);color:var(--muted);font-size:.72rem}.live-chip::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--good);box-shadow:0 0 10px var(--good)}.hero h1{position:relative;z-index:1;margin:16px 0 10px;max-width:620px;font-size:clamp(2rem,6vw,4.25rem);line-height:1.08;letter-spacing:-.04em}.hero h1 em{font-style:normal;color:var(--acc-2)}.hero p{position:relative;z-index:1;max-width:530px;margin:0;color:var(--muted);font-size:clamp(.9rem,2vw,1.05rem)}.section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 13px}.section-heading h2{margin:0;font-size:1.15rem}.section-heading p{margin:0;color:var(--muted);font-size:.82rem}
+h1,h2,h3{letter-spacing:-.02em}h3{margin:18px 0 10px;font-size:1.05rem}.query-heading{display:flex;align-items:center;gap:8px;margin:4px 0 16px;font-size:1.2rem}.query-heading::before{content:"";width:8px;height:28px;border-radius:99px;background:linear-gradient(var(--acc),var(--acc-2))}
+.grid{display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));gap:14px}.card{position:relative;display:block;overflow:hidden;color:inherit;text-decoration:none;background:linear-gradient(160deg,var(--card-2),var(--card));border:1px solid var(--line);border-top:3px solid var(--source,var(--acc));border-radius:var(--r);box-shadow:0 10px 28px rgba(0,0,0,.16);cursor:pointer;transition:transform .25s,box-shadow .25s,border-color .25s}.card::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 35%,rgba(255,255,255,.08),transparent 64%);transform:translateX(-120%);transition:transform .65s;pointer-events:none}.card:hover{transform:translateY(-5px);border-color:color-mix(in srgb,var(--source,var(--acc)) 62%,var(--line));box-shadow:0 20px 42px rgba(0,0,0,.3)}.card:hover::after{transform:translateX(120%)}.card img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;background:linear-gradient(135deg,var(--card-2),var(--bg-soft));transition:transform .35s,filter .35s}.card:hover img{transform:scale(1.035);filter:saturate(1.08)}.card-body{padding:11px 12px 12px}.card-title{display:block;min-height:2.75em;overflow:hidden;font-size:.88rem;line-height:1.4}.card-foot{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:10px;color:var(--muted);font-size:.68rem}.card-source{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:rtl}.score-pill{padding:3px 7px;color:#ffe19a;border-color:rgba(246,198,103,.3);background:rgba(246,198,103,.08);white-space:nowrap}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}.filter-bar{padding:10px;border:1px solid var(--line);border-radius:16px;background:color-mix(in srgb,var(--card) 82%,transparent)}.filter-bar select{flex:1;min-width:125px}.filter-label{color:var(--muted);font-size:.75rem;font-weight:800}.result-meta{display:flex;align-items:center;gap:8px;margin:14px 2px;color:var(--muted);font-size:.78rem}.result-dot{width:4px;height:4px;border-radius:50%;background:var(--acc-2)}.c{text-align:center;color:var(--muted);padding:25px 12px}.err{white-space:pre-wrap;word-break:break-word;font-size:.8rem;direction:ltr;text-align:left;color:#ff9eae}
+.srcs{display:grid;grid-template-columns:repeat(auto-fill,minmax(142px,1fr));gap:14px}.src{position:relative;min-height:148px;overflow:hidden;background:linear-gradient(150deg,var(--card-2),var(--card));border:1px solid var(--line);border-top:3px solid var(--sc,var(--acc));border-radius:18px;padding:18px 10px 14px;text-align:center;cursor:pointer;font-size:.82rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:11px;box-shadow:0 10px 26px rgba(0,0,0,.14);transition:transform .22s,border-color .22s,box-shadow .22s}.src::before{content:"";position:absolute;inset:auto -25% -48% 20%;height:100px;background:radial-gradient(circle,color-mix(in srgb,var(--sc,var(--acc)) 21%,transparent),transparent 68%);pointer-events:none}.src:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--sc,var(--acc)) 68%,var(--line));box-shadow:0 18px 34px color-mix(in srgb,var(--sc,var(--acc)) 13%,transparent)}.src > img,.src > i{position:relative;width:58px;height:58px;border-radius:18px;object-fit:cover;background:var(--bg-soft);border:1px solid rgba(255,255,255,.08);box-shadow:0 8px 20px rgba(0,0,0,.2)}.src i{display:grid;place-items:center;color:#fff;font:800 1.3rem system-ui;font-style:normal;background:linear-gradient(145deg,var(--sc,var(--acc)),color-mix(in srgb,var(--sc,var(--acc)) 50%,#101525));border:0}.src b{position:relative;max-width:100%;line-height:1.35}.sh{display:flex;align-items:center;gap:11px;margin:4px 0 20px;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:color-mix(in srgb,var(--card) 88%,transparent);box-shadow:0 8px 26px rgba(0,0,0,.12)}.sh img,.sh i{width:38px;height:38px;border-radius:12px;object-fit:cover;background:var(--bg-soft)}.sh i{display:grid;place-items:center;color:#fff;font-style:normal;background:var(--sc,var(--acc))}.sh h3{flex:1;margin:0}.sh h3::before{content:"المصدر الحالي";display:block;color:var(--muted);font-size:.63rem;font-weight:700;letter-spacing:.08em;margin-bottom:2px}.sh button{background:transparent;color:var(--muted)}
+.det{display:grid;grid-template-columns:150px 1fr;gap:20px;align-items:start;padding:18px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(135deg,var(--card-2),var(--card));box-shadow:var(--shadow)}.det img{width:150px;aspect-ratio:3/4;object-fit:cover;border-radius:14px}.det h2{margin:4px 0 8px;font-size:clamp(1.25rem,4vw,2rem)}.det p{margin:0;color:var(--acc-2)!important;font-size:.8rem}.chs{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:8px;margin-top:16px}.chs button{font-size:.8rem;text-align:right}.chs .rd{opacity:.42;text-decoration:line-through}
+details{background:linear-gradient(140deg,var(--card-2),var(--card));border:1px solid var(--line);border-radius:16px;margin:10px 0;padding:7px 14px;box-shadow:0 8px 22px rgba(0,0,0,.08)}summary{padding:9px 0;font-weight:800;cursor:pointer;list-style:none}summary::-webkit-details-marker{display:none}summary::before{content:"＋";display:inline-block;margin-inline-end:8px;color:var(--acc-2);font-size:.85em;transition:transform .2s}details[open]>summary::before{content:"－"}label{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:.87rem;color:var(--muted)}label:last-child{border-bottom:0}label input[type=text],label select{width:55%}small{opacity:.68;min-width:3em}textarea{width:100%;min-height:70px}pre{white-space:pre-wrap;font-size:.7rem;max-height:260px;overflow:auto;direction:ltr;text-align:left}
+iframe{width:100%;height:55vh;border:1px solid var(--line);border-radius:16px;background:#fff}nav{position:fixed;bottom:0;inset-inline:0;display:flex;justify-content:center;gap:6px;background:color-mix(in srgb,var(--bg) 84%,transparent);border-top:1px solid var(--line);padding:8px max(10px,env(safe-area-inset-left)) max(8px,env(safe-area-inset-bottom));backdrop-filter:blur(22px);z-index:10}nav button{flex:1;max-width:220px;border:0;border-radius:14px;background:transparent;color:var(--muted);padding:8px 5px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:.7rem}nav button:hover{background:color-mix(in srgb,var(--card) 76%,transparent);transform:none}nav .sel{color:var(--fg);background:color-mix(in srgb,var(--acc) 14%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--acc) 22%,transparent)}.nav-icon{font-size:1.15rem;line-height:1;color:var(--acc-2)}nav .sel .nav-icon{color:var(--acc)}
+#rd{position:fixed;inset:0;background:#050609;z-index:20;display:flex;flex-direction:column}#rd[hidden]{display:none}.rb{display:flex;align-items:center;gap:9px;padding:10px 12px;background:rgba(5,6,9,.86);backdrop-filter:blur(18px);color:#fff;border-bottom:1px solid rgba(255,255,255,.12)}.rb button{background:#171b27;color:#fff;border-color:rgba(255,255,255,.12)}.rb b{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:.9rem}#rd.hb .rb{display:none}#rc{flex:1;overflow:auto;-webkit-overflow-scrolling:touch}.m-scroll{display:flex;flex-direction:column;align-items:center;gap:var(--gap)}.m-scroll img{display:block;max-width:100%}.m-scroll img:not([src]){min-height:70vh;width:100%}.f-width img{width:100%}.f-height img{max-height:calc(100vh - 100px);width:auto}.pg{display:flex;justify-content:center;align-items:center;min-height:100%;gap:var(--gap)}.pg.rv{flex-direction:row-reverse}.pg img{max-width:100%}.m-double img{max-width:50%}#rs{position:absolute;bottom:62px;inset-inline:10px;max-height:60vh;overflow:auto;background:var(--card);color:var(--fg);padding:10px 14px;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}#toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);background:rgba(8,11,18,.9);border:1px solid var(--line-strong);color:#fff;padding:9px 15px;border-radius:999px;opacity:0;transition:.3s;pointer-events:none;z-index:30;max-width:90vw;font-size:.82rem;box-shadow:var(--shadow)}#toast.show{opacity:1}
+@media (max-width:720px){.app-header{grid-template-columns:auto minmax(0,1fr) auto;gap:7px;padding-inline:10px}.brand-copy{display:none}.brand-mark{width:36px;height:36px}.search-btn{padding-inline:10px}.all-btn{display:none}main{padding-top:18px}.hero{padding:24px 20px;border-radius:22px}.hero h1{font-size:2.2rem}.srcs{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.src{min-height:132px;padding:12px 5px;font-size:.72rem;border-radius:15px}.src > img,.src > i{width:48px;height:48px;border-radius:15px}.grid{gap:10px}.card-body{padding:9px 9px 10px}.card-title{font-size:.78rem}.card-foot{font-size:.61rem}.det{grid-template-columns:100px 1fr;gap:13px;padding:13px}.det img{width:100px}.chs{grid-template-columns:repeat(2,minmax(0,1fr))}.filter-label{width:100%}}
+@media (max-width:390px){.srcs{gap:7px}.src{min-height:120px}.src > img,.src > i{width:43px;height:43px}.hero h1{font-size:1.95rem}.brand-mark{width:33px;height:33px}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<header class="app-header">
+  <div class="brand-lockup" aria-label="Fate Manga"><span class="brand-mark" aria-hidden="true">F</span><span class="brand-copy"><strong>Fate</strong><small>قارئ مانجا عربي · الإصدار 1.2026</small></span></div>
+  <div class="search-box"><span class="search-glyph" aria-hidden="true">⌕</span><input id="q" type="search" placeholder="ابحث عن مانجا…" enterkeyhint="search"></div>
+  <button class="acc search-btn" data-act="search">بحث</button><button class="all-btn" data-act="sall" title="بحث في كل المصادر">🌐</button>
+</header>
+<main id="main"></main>
+<nav><button data-t="home"><span class="nav-icon">⌂</span><span>الرئيسية</span></button><button data-t="lib"><span class="nav-icon">▣</span><span>مكتبتي</span></button><button data-t="cf"><span class="nav-icon">◌</span><span>Cloudflare</span></button><button data-t="set"><span class="nav-icon">⚙</span><span>الإعدادات</span></button></nav>
+<div id="rd" hidden>
+  <div class="rb"><button data-act="close">✕</button><b id="rt"></b><button data-act="rset">⚙</button></div>
+  <div id="rc"></div>
+  <div id="rs" hidden></div>
+  <div class="rb" style="justify-content:space-between"><button data-act="prev">‹ السابق</button><span id="pc"></span><button data-act="next">التالي ›</button></div>
+</div>
+<div id="toast"></div>
+<script>
+'use strict';
+const D={ua:'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Mobile Safari/537.36',headers:'{}',mode:'auto',proxy:'/api/source-proxy?url={url}',delay:600,retries:2,timeout:25000,viaT:false,refpol:'no-referrer',theme:'dark',red:false,accent:'#6c8cff',cols:3,radius:12,font:16,rmode:'scroll',fit:'width',rtl:true,gap:0,rbg:'#000000',bright:100,filter:'none',preload:3,autoNext:true,wake:true,tap:true,ttl:600};
+const $=s=>document.querySelector(s),q=(d,s)=>[...d.querySelectorAll(s)],esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const mem={},ls={g(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return mem[k]??d}},s(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{mem[k]=v}}};
+const cookieValue=n=>document.cookie.split(';').map(x=>x.trim()).find(x=>x.startsWith(n+'='))?.slice(n.length+1)||'';
+const devHeaders=(extra={})=>({...extra,...(cookieValue('fate_dev_csrf')?{'X-CSRF-Token':cookieValue('fate_dev_csrf')}: {})});
+const gp=(o,p)=>p.split('.').reduce((a,k)=>a?.[k],o),sp=(o,p,v)=>{const k=p.split('.'),l=k.pop();k.reduce((a,x)=>a[x],o)[l]=v};
+let S={...D,...ls.g('cfg',{})};if(!S.proxy)S.proxy=D.proxy;
+let FAV=ls.g('fav',[]),P=ls.g('prog',{}),L=[],cur=null,R=null,io=null,W=null,tab='home',pg=1,qs='',items=[],sTok=0,moreAvailable=true,loadingAll=false,filters={genre:'',format:'',min:0,sort:'source'};
+
+/* ---------- sources ----------
+ kind: madara (WordPress Madara) | stream (MangaStream/Themesia) | astro (Astro islands + /api/reader) | generic
+ list/search: القوالب الأساسية  —  alt: مسارات بديلة تُجرَّب تلقائياً إذا الأساسي رجع 404 أو فاضي
+ imgT: تحميل الصور عبر طبقة الاتصال (Referer حقيقي) — يعمل مع الجسر/WebView */
+const MAD={kind:'madara',list:'/manga/{pp}',search:'/?s={q}&post_type=wp-manga&paged={p}',alt:['/?s=&post_type=wp-manga&paged={p}','/manga/?page={p}','/series/?page={p}']};
+const DS=[
+{id:'starz',name:'ستارز مانجا',base:'https://starzmanga.net',icon:'https://starzmanga.net/wp-content/512starzmanga.png',...MAD},
+{id:'swat',name:'مانجا سوات (AppSwat)',base:'https://appswat.com',kind:'swat',api:'https://appswat.com/v2/api/v2/',list:'',search:''},
+{id:'mesh',name:'مانجا سوات (Mesh)',base:'https://meshmanga.com',kind:'swat',api:'https://appswat.com/v2/api/v2/',list:'',search:''},
+{id:'manonga',name:'مانجا أونلاين',base:'https://manonga.online',icon:'https://www.onma.me/uploads/favicon.png',...MAD},
+{id:'hijala',name:'مانجا حجالة',base:'https://hijala.com',...MAD},
+{id:'azora',name:'أزورا',base:'https://azorafly.com',kind:'stream',list:'/series/?page={p}',search:'/series/?search={q}&page={p}',alt:['/series/']},
+{id:'mangalik',name:'مانجا ليك',base:'https://mangalik.net',icon:'https://io.mangalik.net/wp-content/app/lekmanganet/512.png',...MAD},
+{id:'lava',name:'لافا سكانس',base:'https://lavascans.com',kind:'astro',imgT:true,list:'/series?page={p}',search:'/?s={q}&page={p}',alt:['/series/?page={p}','/?s=&page={p}','/']},
+{id:'teamx',name:'تيم إكس',base:'https://olympustaff.com',kind:'generic',list:'/series?page={p}',search:'/?s={q}&page={p}',alt:['/series/?page={p}','/']},
+{id:'3asq',name:'العاشق',base:'https://3asq.online',...MAD},
+{id:'mangatuk',name:'مانجا توك',base:'https://mangatuk.com',icon:'https://mangatuk.com/site-icons/17ca9e84/icon-192.png',kind:'generic',list:'/manga/?page={p}',search:'/?s={q}&page={p}',alt:['/series/?page={p}','/?s=&page={p}','/']},
+{id:'lagoonscans',name:'لاغون سكانز',base:'https://lagoonscans.com',...MAD},
+{id:'areascans',name:'AreaScans / KenManga',base:'https://ar.kenmanga.com',...MAD,search:'/?s={q}&page={p}'},
+{id:'mangatek',name:'مانجا تك',base:'https://mangatek.com',kind:'generic',list:'/manga-list?page={p}',search:'/manga-list?search={q}&page={p}',alt:['/manga-list','/']},
+{id:'kingofshojo',name:'King Of Shojo',base:'https://kingofshojo.com',...MAD},
+{id:'vortexscans',name:'Vortex Scans',base:'https://vortexscans.org',kind:'stream',list:'/series/?page={p}',search:'/series/?search={q}&page={p}',alt:['/series/']},
+{id:'asurascans',name:'Asura Scans',base:'https://asurascans.com',kind:'astro',imgT:true,list:'/browse/comics?page={p}',search:'/browse/comics?q={q}&page={p}',alt:['/browse/comics','/']}];
+const SV=7;
+const hue=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))%360;return`hsl(${h} 65% 50%)`};
+const norm=x=>{x.sel={list:'',title:'',chap:'',img:'',...x.sel};x.cookie=x.cookie||'';x.color=x.color||hue(x.id);x.icon=x.icon||'';x.viaP=!!x.viaP;x.api=x.api||'';x.kind=x.kind||'madara';x.alt=x.alt||[];x.imgT=!!x.imgT;return x};
+let SRCS=ls.g('srcs',null);
+if(!Array.isArray(SRCS)||!SRCS.length||ls.g('srcv',0)<SV){
+  const old=Object.fromEntries((SRCS||[]).map(x=>[x.id,x])),custom=(SRCS||[]).filter(x=>/^s\d+$/.test(x.id));
+  SRCS=DS.map(d=>({...d,cookie:old[d.id]?.cookie||(d.id==='starz'?S.cookie:'')||'',sel:old[d.id]?.sel,icon:old[d.id]?.icon||d.icon||'',autoIcon:old[d.id]?.autoIcon||''})).concat(custom);ls.s('srcv',SV);ls.s('srcs',SRCS)}
+SRCS.forEach(norm);
+let DEV=false;
+async function loadRemoteSourceConfig(){try{const r=await fetch('/api/source-config',{credentials:'same-origin'});if(!r.ok)return;const j=await r.json();for(const x of (j.sources||[])){const old=SRCS.find(s=>s.id===x.id);if(old)Object.assign(old,x);else SRCS.push(norm(x))}if(j.settings?.proxyTemplate)S.proxy=j.settings.proxyTemplate;SRCS.forEach(norm);ls.s('srcs',SRCS);ls.s('cfg',S)}catch(e){log('تعذر تحميل إعدادات المصادر: '+e.message)}}
+if(S.proxy==='http://127.0.0.1:8787/?url={url}'){S.proxy='';ls.s('cfg',S)}
+let hs=ls.g('hs',''),CS=SRCS.find(x=>x.id===hs)||SRCS[0];
+const srcOf=u=>SRCS.find(x=>u.startsWith(x.base))||SRCS.find(x=>{try{return new URL(u).hostname===new URL(x.base).hostname}catch{return false}})||CS;
+const sl=(k,sr=CS)=>sr.sel[k]||'';
+const tpl=(t,o)=>t.replace(/\{pp\}/g,o.p>1?'page/'+o.p+'/':'').replace(/\{p\}/g,o.p).replace(/\{q\}/g,encodeURIComponent(o.q||''));
+
+const log=m=>{L.push(new Date().toLocaleTimeString()+' '+m);if(L.length>80)L.shift()};
+const toast=m=>{const t=$('#toast');t.textContent=m;t.className='show';setTimeout(()=>t.className='',2600)};
+const save=()=>{ls.s('cfg',S);ls.s('srcs',SRCS);theme()};
+function theme(){const t=S.theme==='system'?(matchMedia('(prefers-color-scheme:light)').matches?'light':'dark'):S.theme,r=document.documentElement;r.dataset.theme=t;r.dataset.red=S.red?'true':'false';r.style.setProperty('--acc',S.accent);r.style.setProperty('--cols',S.cols);r.style.setProperty('--r',S.radius+'px');r.style.fontSize=S.font+'px'}
+
+/* ---------- transport: bridge | direct | proxy ---------- */
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));let last=0,chain=Promise.resolve();
+const gate=()=>chain=chain.then(async()=>{const w=S.delay-(Date.now()-last);if(w>0)await sleep(w+Math.random()*S.delay*.3);last=Date.now()});
+const b64blob=(b,t)=>{const a=atob(b),u=new Uint8Array(a.length);for(let i=0;i<a.length;i++)u[i]=a.charCodeAt(i);return new Blob([u],{type:t||'image/jpeg'})};
+const hasBridge=()=>!!(window.flutter_inappwebview?.callHandler||window.Android?.request||window.nativeRequest);
+async function viaBridge(r){let x;if(window.flutter_inappwebview?.callHandler)x=await window.flutter_inappwebview.callHandler('request',r);else if(window.Android?.request)x=await window.Android.request(JSON.stringify(r));else x=await window.nativeRequest(r);return typeof x==='string'?JSON.parse(x):x}
+async function rawM(url,o,m0){
+  let extra={};try{extra=JSON.parse(S.headers||'{}')}catch{}
+  const sr=o.src||CS,H={Referer:sr.base+'/','Accept-Language':'ar,en;q=0.8',...extra,...(o.headers||{})};
+  if(S.ua&&!H['User-Agent'])H['User-Agent']=S.ua;if(sr.cookie&&!H.Cookie)H.Cookie=sr.cookie;
+  const m=m0,bin=o.type==='blob';
+  if(m==='bridge'){const x=await viaBridge({url,method:o.method||'GET',headers:H,body:o.body||null,binary:bin});return{status:x.status,text:bin?null:x.body,blob:bin?b64blob(x.body,x.contentType):null}}
+  /* بدون AbortSignal: بعض البيئات (iframe / جسر postMessage) ما تقدر تنسخه وترجّع DataCloneError */
+  let u=url;const f={method:o.method||'GET',body:o.body,credentials:'include',headers:{...H}};
+  if(m==='proxy'){if(!S.proxy)throw Error('لم يتم تحديد قالب البروكسي');u=S.proxy.replace('{url}',encodeURIComponent(url));f.credentials='omit';f.headers={'X-Fwd-User-Agent':H['User-Agent']||'','X-Fwd-Cookie':H.Cookie||'','X-Fwd-Referer':H.Referer,...(o.headers||{})}}
+  let tm;const lim=new Promise((_,j)=>{tm=setTimeout(()=>j(Error('انتهت المهلة '+S.timeout+'ms')),S.timeout)});
+  try{return await Promise.race([(async()=>{const r=await fetch(u,f);return{status:r.status,text:bin?null:await r.text(),blob:bin?await r.blob():null}})(),lim])}
+  finally{clearTimeout(tm)}}
+const modeOf=()=>S.mode==='auto'?(hasBridge()?'bridge':(S.proxy?'proxy':'direct')):S.mode;
+/* مصدر عبر البروكسي: إذا البروكسي مطفي نرجع للاتصال العادي بدل ما يموت المصدر */
+async function raw(url,o){const sr=o.src||CS;
+  if(sr.viaP&&S.proxy){
+    try{return await rawM(url,o,'proxy')}
+    catch(e){if(!/failed to fetch|networkerror|load failed|المهلة/i.test(e.message))throw e;
+      log('البروكسي غير متصل ('+S.proxy.split('?')[0]+') — محاولة مباشرة');
+      const m2=modeOf();if(m2==='proxy')throw Error('البروكسي غير متصل — شغّل fate_proxy.py أو عطّل «عبر بروكسي» للمصدر');
+      try{return await rawM(url,o,m2)}catch(e2){throw Error('البروكسي غير متصل ('+S.proxy.split('?')[0]+') والاتصال المباشر فشل: '+e2.message)}}}
+  return rawM(url,o,modeOf())}
+const cache=new Map();
+/* 404 ≠ Cloudflare: الخطأ يوصف بدقة، و Cloudflare فقط لما يظهر تحدٍّ فعلي */
+async function get(url,o={}){
+  const bin=o.type==='blob',k=(o.method||'GET')+url+(o.body||'')+(o.headers?JSON.stringify(o.headers):''),c=cache.get(k);
+  if(c&&Date.now()-c.t<S.ttl*1e3)return c.v;
+  let err;const tries=bin?1:S.retries;
+  for(let i=0;i<=tries;i++){if(!bin)await gate();
+    try{const r=await raw(url,o),cfm=/just a moment|cf-chl|cf-turnstile|challenge-platform|attention required! \| cloudflare/i.test((r.text||'').slice(0,6000));
+      if(cfm||r.status>=400){const e=Error(cfm?'HTTP '+r.status+' — تحدي Cloudflare، افتح تبويب Cloudflare':r.status===404?'HTTP 404 — المسار غير موجود':r.status===401?'HTTP 401 — يحتاج تسجيل دخول':r.status===403?'HTTP 403 — الموقع رفض الطلب (حماية أو ترويسات)':'HTTP '+r.status);e.status=r.status;e.cf=cfm;throw e}
+      if(!bin)cache.set(k,{t:Date.now(),v:r});return r}
+    catch(e){err=e;log(url+' → '+e.message);if(e.status===404||e.status===410)break;await sleep(500*(i+1))}}
+  throw err}
+
+/* ---------- parsers ---------- */
+const parse=h=>new DOMParser().parseFromString(h||'','text/html'),abs=(u,b)=>{try{return new URL(u,b).href}catch{return u}};
+const ia=e=>{if(!e)return'';for(const a of['data-src','data-lazy-src','data-original','data-cfsrc','data-url','data-srcset','data-lazy-srcset','srcset','src']){const v=(e.getAttribute(a)||'').trim();if(!v||v.startsWith('data:'))continue;return v.split(',')[0].trim().split(/\s+/)[0]}return''};
+const PATH=/\/(manga|series|serie|comics?|webtoon|manhwa|manhua|work|title|read)\/[^/?#]+/i;
+const IMGX=/\.(?:jpe?g|png|webp|avif|gif)(?:[?#]|$)/i,str=x=>typeof x==='string'?x:'';
+const LIST_SEL='.page-item-detail,.c-tabs-item__row,.popular-item-wrap,.listupd .bs,.listupd .bsx,.utao,.series-card,.manga-card,.app-series-card';
+
+/* Astro islands: props=JSON بترميز [نوع, قيمة] */
+const unA=v=>{if(Array.isArray(v)&&v.length===2&&typeof v[0]==='number'){const[t,x]=v;if(t===1&&Array.isArray(x))return x.map(unA);if(t===0&&x&&typeof x==='object'&&!Array.isArray(x))return unO(x);return x}return Array.isArray(v)?v.map(unA):v},
+unO=o=>Object.fromEntries(Object.entries(o).map(([k,v])=>[k,unA(v)]));
+const astro=d=>q(d,'astro-island[props]').map(e=>{try{return unO(JSON.parse(e.getAttribute('props')))}catch{return null}}).filter(Boolean);
+function walk(o,f,k){f(o,k);if(Array.isArray(o))o.forEach(x=>walk(x,f,k));else if(o&&typeof o==='object')for(const[kk,v]of Object.entries(o))walk(v,f,kk)}
+const urlOf=o=>{let url='',c='';for(const k of['public_url','url','link','href','path']){const v=str(o[k]);if(!v)continue;if(IMGX.test(v))c=c||v;else url=url||v}return{url,c}};
+function astroList(d,sr){const out=[],B=sr.base+'/';
+  astro(d).forEach(p=>walk(p,o=>{if(!o||Array.isArray(o)||typeof o!=='object'||o.number!==undefined)return;const t=str(o.title||o.name),s=str(o.slug);if(!t||!(s||o.public_url||o.url))return;
+    let{url,c}=urlOf(o);for(const k of['cover','cover_url','thumbnail','poster','image','image_url','img']){const v=str(o[k]);if(v){c=v;break}}
+    if(!url&&s)url='/series/'+s;if(url)out.push({u:abs(url,B),t,c:c?abs(c,B):''})}));return out}
+function astroChaps(d,sr){const seen=new Set(),out=[],B=sr.base+'/';
+  astro(d).forEach(p=>walk(p,o=>{if(!o||Array.isArray(o)||typeof o!=='object'||o.number===undefined)return;const{url}=urlOf(o);if(!url)return;const h=abs(url,B);if(seen.has(h))return;seen.add(h);const n=parseFloat(o.number);out.push({t:str(o.title)||'الفصل '+o.number,u:h,n:isNaN(n)?-1:n})}));
+  return out.sort((a,b)=>a.n-b.n)}
+
+function listing(d,u,sr=CS){const els=q(d,sl('list',sr)||LIST_SEL);
+  let out=els.map(e=>{const a=e.querySelector('h3 a,h5 a,.post-title a,.tt a,a[title],a[href]'),i=e.querySelector('img');if(!a)return;
+    return{u:abs(a.getAttribute('href')||'',u),t:(e.querySelector('h3,h5,.tt,.post-title')?.textContent||a.title||i?.alt||a.textContent||'').trim(),c:i?abs(ia(i),u):''}}).filter(x=>x&&PATH.test(x.u));
+  if(!out.length)out=q(d,'a').filter(a=>a.querySelector('img')&&PATH.test(abs(a.getAttribute('href')||'',u))).map(a=>{const i=a.querySelector('img');return{u:abs(a.getAttribute('href'),u),t:(a.title||i.alt||a.textContent).trim(),c:abs(ia(i),u)}});
+  if(!out.length)out=astroList(d,sr);
+  const sn=new Set();return out.filter(x=>x.t&&!sn.has(x.u)&&sn.add(x.u)).map(x=>({...x,meta:null}))}
+const CHS=['li.wp-manga-chapter > a','#chapterlist li a','.eplister li a','.chapter-list li a','ul.main li a','div.grid a[href*="chapter"]'];
+function chAnch(d,s){if(s)return q(d,s);for(const x of CHS){const a=q(d,x);if(a.length)return a}
+  return q(d,'a').filter(x=>/chapter|\/ch[-_]?\d|episode|%d9%81%d8%b5%d9%84/i.test(x.getAttribute('href')||'')||/^\s*(الفصل|فصل|chapter|ch\.?)\s*\d/i.test(x.textContent))}
+const chN=(t,h)=>{const m=h.match(/(?:chapter|ch|episode|%d9%81%d8%b5%d9%84|فصل)[-_/ ]*(\d+(?:[.-]\d+)?)/i)||t.match(/\d+(?:[.-]\d+)?/);return m?parseFloat((m[1]||m[0]).replace('-','.')):-1};
+const chapsOf=(d,u)=>{const seen=new Set();let r=chAnch(d,sl('chap')).map(a=>{const h=abs(a.getAttribute('href'),u);if(!h||h.includes('#')||seen.has(h))return;seen.add(h);const t=a.textContent.trim().replace(/\s+/g,' ');return{t,u:h,n:chN(t,h)}}).filter(Boolean).sort((a,b)=>a.n-b.n);
+  if(!r.length)r=astroChaps(d,srcOf(u));return r};
+async function ajaxCh(d,u){const sr=srcOf(u),hd={'X-Requested-With':'XMLHttpRequest','Content-Type':'application/x-www-form-urlencoded'};
+  try{const r=await get(u.replace(/\/?$/,'/')+'ajax/chapters/',{method:'POST',body:'',headers:hd,src:sr}),c=chapsOf(parse(r.text),u);if(c.length)return c}catch{}
+  const id=d.querySelector('#manga-chapters-holder')?.dataset.id||d.querySelector('input.rating-post-id')?.value;
+  if(id){const r=await get(sr.base+'/wp-admin/admin-ajax.php',{method:'POST',body:'action=manga_get_chapters&manga='+id,headers:hd,src:sr});return chapsOf(parse(r.text),u)}return[]}
+
+/* --- صور الفصل: DOM → سكربت (ts_reader / preloaded) → Astro props → /api/reader → regex --- */
+const IMGSEL=['.reading-content img','.page-break img','#readerarea img','.reader-area img','.chapter-content img','#chapter-images img','.chapter-images img','.container-reader-chapter img','.manga-page img'];
+const JUNK=/\/themes\/|logo|banner|avatar|emoji|-110x150|loading|placeholder/i,cleanI=a=>[...new Set(a)].filter(x=>!JUNK.test(x));
+function domImgs(d,u){let o=[];
+  for(const s of(sl('img')?[sl('img')]:IMGSEL)){q(d,s).forEach(e=>{const v=ia(e);v&&o.push(abs(v.split(' ')[0],u))});if(o.length)break}
+  if(!o.length)q(d,'.manga-page,[data-page],[data-url]').forEach(e=>{const v=ia(e)||ia(e.querySelector('img'));v&&IMGX.test(v)&&o.push(abs(v,u))});
+  return o}
+function scriptImgs(h,u){const o=[],add=a=>Array.isArray(a)&&a.forEach(x=>{const v=typeof x==='string'?x:x&&(x.url||x.src||x.image);if(typeof v==='string'&&IMGX.test(v))o.push(abs(v.replace(/\\\//g,'/'),u))});
+  try{const m=h.match(/ts_reader\.run\((\{[\s\S]*?\})\)\s*;?/);if(m){const j=JSON.parse(m[1]);add(j.sources?.[0]?.images)}}catch{}
+  try{const m=h.match(/chapter_preloaded_images\s*=\s*(\[[^\]]*\])/);if(m)add(JSON.parse(m[1]))}catch{}
+  if(!o.length)try{for(const m of h.matchAll(/"(?:images|pages)"\s*:\s*(\[[^\]]*\])/g)){add(JSON.parse(m[1]));if(o.length)break}}catch{}
+  return o}
+function extractImgs(html,u){const d=parse(html),as=[];
+  astro(d).forEach(p=>walk(p,(o,k)=>{if(Array.isArray(o)&&/^(images|pages|data|chapter_images)$/i.test(k||''))o.forEach(x=>{const v=typeof x==='string'?x:x&&(x.url||x.src||x.image);if(typeof v==='string'&&IMGX.test(v))as.push(abs(v,u))})}));
+  return{dom:domImgs(d,u),sc:scriptImgs(html,u),as,d}}
+const apiUrls=(h,sr)=>[...new Set((h.replace(/\\\//g,'/').match(/(?:https?:\/\/[^"'\s\\<>]+)?\/api\/reader\/[^"'\s\\<>)]+/g)||[]).map(x=>abs(x,sr.base+'/')))];
+async function apiImgs(html,u,sr){
+  let ids=apiUrls(html,sr);
+  astro(parse(html)).forEach(p=>walk(p,(o,k)=>{if((k==='chapterId'||k==='chapter_id')&&(typeof o==='string'||typeof o==='number'))ids.push(sr.base+'/api/reader/'+o)}));
+  if(!ids.length)ids.push(sr.base+'/api/reader/'+u.replace(/\/+$/,'').split('/').pop());
+  for(const a of[...new Set(ids)].slice(0,6)){
+    try{const r=await get(a,{src:sr,headers:{Accept:'application/json, text/plain, */*','X-Requested-With':'XMLHttpRequest',Referer:u}});let j;try{j=JSON.parse(r.text)}catch{continue}
+      const arr=[j?.data,j?.images,j?.pages,j?.data?.images,j?.data?.pages,j?.chapter?.images].find(Array.isArray),o=[];
+      (arr||[]).forEach(x=>{const v=typeof x==='string'?x:x&&(x.url||x.src||x.image);if(typeof v==='string')o.push(abs(v,sr.base+'/'))});
+      if(o.length)return cleanI(o)}catch(e){log(e.message)}}
+  return[]}
+async function chImgs(u){const sr=srcOf(u);if(sr.kind==='swat')return swatImgs(u,sr);const b=u.replace(/\/?$/,'/'),mad=sr.kind==='madara',
+  H=mad?{Cookie:(sr.cookie?sr.cookie+'; ':'')+'wp-manga-reading-style=list; wp-manga-reading-mode=list; reading_style=list'}:{};
+  let r=await get(mad?b+'?style=list':u,{src:sr,headers:H}),x=extractImgs(r.text,u),im=cleanI([...x.dom,...x.sc]);
+  if(!im.length&&mad){r=await get(b,{src:sr,headers:H});x=extractImgs(r.text,u);im=cleanI([...x.dom,...x.sc])}
+  if(!im.length)im=cleanI(x.as);
+  if(!im.length)im=await apiImgs(r.text,u,sr);
+  if(!im.length)im=cleanI(r.text.replace(/\\\//g,'/').match(/https?:\/\/[^"'\s\\<>]+?\.(?:jpe?g|png|webp|avif)/gi)||[]);
+  return im}
+
+/* ---------- Swat (Next.js + Django REST): API مباشر = ما في صفحة «حمّل التطبيق» أصلاً ---------- */
+const swatH=sr=>({Accept:'application/json, text/plain, */*',Origin:sr.base,Referer:sr.base+'/'});
+async function swatJ(sr,path){const r=await get(/^https?:/.test(path)?path:sr.api+path,{src:sr,headers:swatH(sr)});try{return JSON.parse(r.text)}catch{throw Error('الـ API ما رجّع JSON: '+(r.text||'').slice(0,120))}}
+const posterOf=(x,B)=>{const p=x.poster||x.cover||x.thumbnail||x.image,v=typeof p==='string'?p:p&&(p.medium||p.large||p.small||p.original||p.url);return v?abs(v,B):''};
+const sid=u=>u.replace(/[?#].*$/,'').replace(/\/+$/,'').split('/').pop();
+async function swatList(sr,k,p){const path='series/?page_size=24&page='+p+(k?'&search='+encodeURIComponent(k):'&order_by=-created_at');let j;
+  try{j=await swatJ(sr,path)}catch(e){if(p>1&&e.status===404)return{items:[],u:''};throw e}
+  const a=Array.isArray(j)?j:(j.results||[]),l=a.filter(x=>x&&x.id!=null&&(x.title||x.name)).map(x=>({u:sr.base+'/series/'+x.id,t:String(x.title||x.name),c:posterOf(x,sr.base+'/')}));
+  if(!l.length&&p>1)return{items:[],u:''};if(!l.length)throw Error('الـ API رجّع قائمة فاضية: '+sr.api+path);return{items:l,u:sr.api+path}}
+async function swatChaps(sr,id,j){
+  const ok=a=>Array.isArray(a)&&a.length&&a.every(x=>x&&x.id!=null&&x.chapter!==undefined),
+  ref=x=>x.serie_id??x.series_id??(x.serie&&typeof x.serie==='object'?x.serie.id:x.serie)??(x.series&&typeof x.series==='object'?x.series.id:x.series),
+  mine=(a,need)=>a.every(x=>{const s=ref(x);return s===undefined?!need:String(s)===String(id)});
+  let a=j&&[j.chapters,j.chapter_list,j.results].find(ok);
+  if(!a)for(const path of[`series/${id}/chapters/?page_size=1000`,`chapters/?serie=${id}&page_size=1000`,`chapters/?serie_id=${id}&page_size=1000`,`chapters/?series=${id}&page_size=1000`,`chapters/?series_id=${id}&page_size=1000`]){
+    try{let o=[],nx=path,n=0;while(nx&&n++<30){const r=await swatJ(sr,nx);o=o.concat(Array.isArray(r)?r:r.results||[]);nx=Array.isArray(r)?null:r.next}
+      if(ok(o)&&mine(o,path.startsWith('chapters/'))){a=o;break}}catch(e){log(e.message)}}
+  return(a||[]).map(x=>{const n=parseFloat(x.chapter);return{t:'الفصل '+x.chapter,u:sr.base+'/chapter/'+x.id,n:isNaN(n)?-1:n}}).sort((a,b)=>a.n-b.n)}
+async function swatDetail(u){const sr=srcOf(u),id=sid(u),j=await swatJ(sr,`series/${id}/`);
+  return{chs:await swatChaps(sr,id,j),t:String(j.title||j.name||id),cv:posterOf(j,sr.base+'/')}}
+function jsonImgs(j,B){let best=[];const pick=x=>{if(typeof x==='string')return x;if(x&&typeof x==='object')for(const k of['url','image','src','file','original','large','medium','path','link']){const v=x[k];if(typeof v==='string')return v;if(v&&typeof v==='object'&&typeof v.url==='string')return v.url}return''};
+  walk(j,(o,k)=>{if(!Array.isArray(o)||!o.length)return;const a=o.map(pick).filter(s=>s&&(IMGX.test(s)||(/image|page|photo|file|picture/i.test(k||'')&&/^(https?:)?\//.test(s))));if(a.length>best.length)best=a});
+  return best.map(x=>abs(x,B))}
+async function swatImgs(u,sr){const id=sid(u);let last=Error('لا صور');
+  for(const p of[`chapter/${id}/`,`chapters/${id}/`]){try{const im=jsonImgs(await swatJ(sr,p),sr.base+'/');if(im.length)return cleanI(im);last=Error('الفصل رجّع JSON بدون صور — شغّل «تشخيص» مع رابط الفصل')}catch(e){last=e}}
+  throw last}
+
+/* ---------- القوائم: يجرّب المسار الأساسي ثم البدائل ويتذكر اللي اشتغل ---------- */
+async function fetchList(sr,k,p){
+  if(sr.kind==='swat')return swatList(sr,k,p);
+  const terms=k?[...new Set([k.trim(),k.trim().replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/\s+/g,' ')].filter(Boolean))]:[''],T=k?[sr.search,...(sr.searchAlt||[]),'/?s={q}&page={p}','/?s={q}&post_type=wp-manga&paged={p}']:[sr.ok,sr.list,...(sr.alt||[])],seen=new Set(),errs=[];let cf=null;
+  for(const term of terms)for(const t of T){if(!t||seen.has(t+'|'+term))continue;seen.add(t+'|'+term);const u=sr.base+tpl(t,{p,q:term});
+    try{const r=await get(u,{src:sr}),l=listing(parse(r.text),u,sr);
+      if(l.length){if(!k&&sr.ok!==t){sr.ok=t;ls.s('srcs',SRCS)}return{items:l,u}}errs.push('فارغ: '+u)}
+    catch(e){errs.push(e.message+'  ←  '+u);if(e.cf){cf=e;break}}}
+  if(cf)throw cf;if(p>1)return{items:[],u:''};
+  throw Error('لا نتائج، المسارات اللي جُرِّبت:\n'+errs.join('\n')+'\n\nاستخدم «تشخيص» من الإعدادات')}
+
+/* ---------- views ---------- */
+const main=$('#main');
+const viaP=s=>!!(s.viaP&&S.proxy),needT=u=>{const s=srcOf(u);return viaP(s)||(hasBridge()&&(s.imgT||S.viaT))};
+const imgTag=(src,u,ex='')=>needT(u)&&src?`<img ${ex} data-cs="${esc(src)}">`:`<img ${ex} referrerpolicy="${S.refpol}" src="${esc(src||'')}">`;
+const card=m=>{const src=srcOf(m.u),score=m.meta?.averageScore?`<span class="score-pill">★ ${(m.meta.averageScore/10).toFixed(1)}</span>`:'',kind=[m.meta?.format,...(m.meta?.genres||[]).slice(0,1)].filter(Boolean).join(' · ');return`<a class="card" style="--source:${src.color}" data-act="open" data-u="${esc(m.u)}">${imgTag(m.c,m.u,'loading="lazy"')}<div class="card-body"><strong class="card-title">${esc(m.t)}</strong><div class="card-foot"><span class="card-source">${esc(kind||src.name)}</span>${score}</div></div></a>`};
+function metaForTitle(title){return title?.toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim()||''}
+async function enrich(list){const targets=list.filter(x=>!x.meta).slice(0,12);if(!targets.length)return;try{const r=await fetch('/api/manga-meta',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({titles:targets.map(x=>x.t)})});if(!r.ok)return;const j=await r.json();for(const x of targets){const direct=j.items?.[x.t];if(direct)x.meta=direct}}catch(e){log('تعذر تحميل التقييمات: '+e.message)}}
+function filterBar(){const genres=[...new Set(items.flatMap(x=>x.meta?.genres||[]))].sort(),formats=[...new Set(items.map(x=>x.meta?.format).filter(Boolean))];return `<div class="bar filter-bar" style="flex-wrap:wrap"><span class="filter-label">تصفية</span><select data-filter="genre"><option value="">كل التصنيفات</option>${genres.map(x=>`<option value="${esc(x)}" ${filters.genre===x?'selected':''}>${esc(x)}</option>`).join('')}</select><select data-filter="format"><option value="">كل الأنواع</option>${formats.map(x=>`<option value="${esc(x)}" ${filters.format===x?'selected':''}>${esc(x)}</option>`).join('')}</select><select data-filter="min"><option value="0">كل التقييمات</option><option value="70" ${filters.min===70?'selected':''}>7+ / 10</option><option value="80" ${filters.min===80?'selected':''}>8+ / 10</option><option value="90" ${filters.min===90?'selected':''}>9+ / 10</option></select><select data-filter="sort"><option value="source">ترتيب المصدر</option><option value="rating" ${filters.sort==='rating'?'selected':''}>الأعلى تقييمًا</option><option value="popularity" ${filters.sort==='popularity'?'selected':''}>الأكثر انتشارًا</option></select></div>`}
+function visibleItems(){const out=items.filter(x=>(!filters.genre||x.meta?.genres?.includes(filters.genre))&&(!filters.format||x.meta?.format===filters.format)&&(!filters.min||((x.meta?.averageScore||0)>=filters.min)));if(filters.sort==='rating')out.sort((a,b)=>(b.meta?.averageScore||0)-(a.meta?.averageScore||0));if(filters.sort==='popularity')out.sort((a,b)=>(b.meta?.popularity||0)-(a.meta?.popularity||0));return out}
+function renderHome(sr){const shown=visibleItems();main.innerHTML=hdr(sr)+(qs?`<div class="query-heading">نتائج: ${esc(qs)}</div>`:'')+filterBar()+`<div class="result-meta"><span>${shown.length} من ${items.length} مانجا</span><span class="result-dot"></span><span>التقييمات من AniList عند توفرها</span></div><div class="grid">${shown.map(card).join('')}</div>`+(loadingAll?'<p class="c">جارٍ تحميل كل الصفحات…</p>':moreAvailable?'<p class="c"><button class="acc" data-act="more">عرض كل المانجات</button></p>':'<p class="c">تم تحميل كل النتائج المتاحة</p>');hydrate()}
+async function hydrate(){const els=q(main,'img[data-cs]');let i=0;
+  const w=async()=>{while(i<els.length){const el=els[i++],s=el.dataset.cs;el.removeAttribute('data-cs');
+    try{const r=await get(s,{type:'blob',src:srcOf(el.closest('[data-u]')?.dataset.u||s),headers:{Referer:srcOf(el.closest('[data-u]')?.dataset.u||s).base+'/'}});el.src=URL.createObjectURL(r.blob)}catch{el.src=s}}};
+  await Promise.all([w(),w(),w(),w()])}
+function go(t){tab=t;document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('sel',b.dataset.t===t));({home,lib,cf,set:setView})[t]()}
+const icoSrc=x=>{if(x.icon)return x.icon;if(x.autoIcon)return x.autoIcon;try{return'https://www.google.com/s2/favicons?domain='+encodeURIComponent(new URL(x.base).hostname)+'&sz=128'}catch{return x.base+'/favicon.ico'}};
+const ico=x=>`<img data-ico="${esc(x.id)}" alt="${esc(x.name)}" referrerpolicy="no-referrer" src="${esc(icoSrc(x))}" onerror="icoErr(this)">`;
+function icoErr(el){const x=SRCS.find(s=>s.id===el.dataset.ico),st=+(el.dataset.st||0);el.dataset.st=st+1;if(!x)return el.outerHTML='<i>'+(el.alt[0]||'?')+'</i>';
+  const fallbacks=[x.autoIcon,'https://www.google.com/s2/favicons?domain='+encodeURIComponent(new URL(x.base).hostname)+'&sz=128',x.base+'/favicon.ico'].filter((v,i,a)=>v&&v!==el.src&&a.indexOf(v)===i);
+  if(fallbacks[st]){el.src=fallbacks[st];return}el.outerHTML='<i>'+(el.alt[0]||'?')+'</i>'}
+/* أيقونات تلقائية: تُقرأ من صفحة الموقع (apple-touch-icon / icon / og:image) وتُحفظ */
+async function autoIcons(){for(const x of SRCS){if(x.icon||x.autoIcon)continue;
+  try{const r=await get(x.base+'/',{src:x}),d=parse(r.text);let h='';
+    for(const s of['link[rel="apple-touch-icon"]','link[rel="apple-touch-icon-precomposed"]','link[rel~="icon"][sizes]','link[rel~="icon"]','link[rel="shortcut icon"]','meta[property="og:image"]']){const e=d.querySelector(s);h=e&&(e.getAttribute('href')||e.getAttribute('content'));if(h)break}
+    if(h){x.autoIcon=abs(h,x.base+'/');ls.s('srcs',SRCS);q(document,`img[data-ico="${x.id}"]`).forEach(e=>{e.dataset.st=0;e.src=x.autoIcon})}}catch{}}}
+const tile=x=>`<div class="src" style="--sc:${x.color}" data-act="pick" data-id="${esc(x.id)}">${ico(x)}<b>${esc(x.name)}</b></div>`;
+const hdr=sr=>`<div class="sh" style="--sc:${sr.color}">${ico(sr)}<h3>${esc(sr.name)}</h3><button data-act="back">‹ المصادر</button></div>`;
+function picker(){hs='';ls.s('hs','');main.innerHTML=`<section class="hero"><div class="hero-top"><span class="eyebrow">FATE MANGA / DISCOVER</span><span class="live-chip">مصادر متصلة</span></div><h1>اقرأ عالمك<br><em>بأسلوبك.</em></h1><p>اختر مصدرك المفضل وابدأ رحلة القراءة. تجربة عربية هادئة، سريعة، ومصممة للعين.</p></section><div class="section-heading"><div><span class="eyebrow">اختيار المصدر</span><h2>من أين نبدأ؟</h2></div><span class="count-pill">${SRCS.length} مصدرًا</span></div><div class="srcs">${SRCS.map(tile).join('')}</div><p class="c">اكتب اسم مانجا واضغط 🌐 للبحث في كل المصادر</p>`}
+async function home(more){
+  if(!hs&&!qs&&!more)return picker();
+  if(hs)CS=SRCS.find(x=>x.id===hs)||CS;const sr=CS;
+  if(!more){pg=1;items=[];moreAvailable=true;filters={genre:'',format:'',min:0,sort:'source'};main.innerHTML='<p class="c">جارٍ التحميل…</p>'}
+  try{const{items:l}=await fetchList(sr,qs,pg),n=l.filter(x=>!items.some(y=>y.u===x.u));items=items.concat(n);moreAvailable=!!l.length&&!!n.length;renderHome(sr);await enrich(items);if(tab==='home')renderHome(sr)}
+  catch(e){main.innerHTML=hdr(sr)+`<p class="c err">${esc(e.message)}</p><p class="c">${/cloudflare|403/i.test(e.message)?`<button class="acc" data-act="tocf" data-id="${esc(sr.id)}">🛡 حل Cloudflare لهذا المصدر</button> `:''}<button data-act="retry">إعادة المحاولة</button></p>`}}
+async function loadAll(){if(loadingAll||!hs&&!qs)return;loadingAll=true;renderHome(CS);try{let guard=0;while(moreAvailable&&guard++<100){pg+=1;const{items:l}=await fetchList(CS,qs,pg),n=l.filter(x=>!items.some(y=>y.u===x.u));if(!l.length||!n.length){moreAvailable=false;break}items=items.concat(n);renderHome(CS)}await enrich(items);renderHome(CS)}catch(e){toast('توقف التحميل: '+e.message)}finally{loadingAll=false;renderHome(CS)}}
+async function sall(){const k=$('#q').value.trim();if(!k)return toast('اكتب اسم المانجا أولاً');
+  tab='home';document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('sel',b.dataset.t==='home'));
+  const res={},tk=++sTok,draw=()=>{if(tk!==sTok||tab!=='home')return;
+    main.innerHTML=`<h3>نتائج «${esc(k)}» في كل المصادر</h3>`+SRCS.map(x=>{const r=res[x.id];return`<div class="sh" style="--sc:${x.color}">${ico(x)}<h3>${esc(x.name)}${r&&r.l?' ('+r.l.length+')':''}</h3></div>`+(!r?'<p class="c">جارٍ البحث…</p>':r.e?`<p class="c err">${esc(r.e.split('\n')[0])}</p>`:r.l.length?`<div class="grid">${r.l.map(card).join('')}</div>`:'<p class="c">لا نتائج</p>')}).join('');hydrate()};
+  draw();await Promise.all(SRCS.map(async x=>{try{const{items:l}=await fetchList(x,k,1);res[x.id]={l}}catch(e){res[x.id]={e:e.message}}draw()}))}
+function lib(){const hs2=Object.entries(P).sort((a,b)=>b[1].at-a[1].at);
+  main.innerHTML=`<h3>تابع القراءة</h3><div class="grid">${hs2.map(([u,p])=>card({u,t:p.t+' · ف'+(p.n??'')+'',c:p.c})).join('')||'<p class="c">لا شيء بعد</p>'}</div><h3>المفضلة</h3><div class="grid">${FAV.map(card).join('')||'<p class="c">لا شيء بعد</p>'}</div>`;hydrate()}
+async function detail(u){CS=srcOf(u);main.innerHTML='<p class="c">جارٍ التحميل…</p>';
+  try{let chs,t,cv;
+    if(CS.kind==='swat')({chs,t,cv}=await swatDetail(u));
+    else{const r=await get(u),d=parse(r.text);chs=chapsOf(d,u);if(!chs.length)chs=await ajaxCh(d,u);
+      const h=d.querySelector(sl('title')||'.post-title h1')||d.querySelector('h1'),ci=d.querySelector('.summary_image img,.thumb img,#mangaCover,.poster img,img.attachment-post-thumbnail')||d.querySelector('img');
+      t=h?([...h.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent.trim()).filter(Boolean).pop()||h.textContent.trim()):u;cv=ci?abs(ia(ci),u):''}
+    cur={m:{u,t,c:cv},chs};const p=P[u],isF=FAV.some(f=>f.u===u);
+    main.innerHTML=`<div class="det" data-u="${esc(u)}">${imgTag(cur.m.c,u)}<div><h2>${esc(t)}</h2><p style="color:${CS.color}">${esc(CS.name)} · ${chs.length} فصل</p><div class="bar"><button data-act="fav" class="${isF?'acc':''}">${isF?'★ في المفضلة':'☆ أضف'}</button>${p&&cur.chs[p.i]?`<button class="acc" data-act="read" data-i="${p.i}" data-p="${p.p}">تابع: ${esc(cur.chs[p.i].t)}</button>`:chs.length?`<button class="acc" data-act="read" data-i="0">ابدأ القراءة</button>`:''}</div></div></div><div class="chs">${chs.map((c,i)=>`<button data-act="read" data-i="${i}" class="${p&&i<=p.i?'rd':''}">${esc(c.t)}</button>`).reverse().join('')||'<p class="c">لا فصول — استخدم «تشخيص» أو عدّل Selector الفصول في المصدر</p>'}</div>`;hydrate()}
+  catch(e){main.innerHTML=`<p class="c err">${esc(e.message)}</p>`}}
+
+/* ---------- reader ---------- */
+const FL={none:'',invert:'invert(1)',grayscale:'grayscale(1)',sepia:'sepia(.8)'};
+async function read(i,p=0){const ch=cur.chs[i];R={i,p,imgs:[],u:ch.u};$('#rd').hidden=false;$('#rd').classList.remove('hb');$('#rt').textContent=cur.m.t+' — '+ch.t;$('#rc').innerHTML='<p class="c">جارٍ التحميل…</p>';wl();
+  try{R.imgs=await chImgs(ch.u)}catch(e){$('#rc').innerHTML=`<p class="c err">${esc(e.message)}</p>`;return}
+  if(!R.imgs.length){$('#rc').innerHTML='<p class="c">لم أجد صوراً — شغّل «تشخيص» مع رابط الفصل من الإعدادات</p>';return}
+  prog();drawR()}
+async function setImg(el){if(el.dataset.l)return;el.dataset.l=1;const s=el.dataset.s,sr=srcOf(R.u);el.referrerPolicy=S.refpol;
+  const T=async()=>{try{const r=await get(s,{type:'blob',src:sr,headers:{Referer:R.u}});el.src=URL.createObjectURL(r.blob);return 1}catch(e){log('img '+e.message)}};
+  el.onerror=async()=>{if(el.dataset.r)return;el.dataset.r=1;if((hasBridge()||viaP(sr))&&await T())return;el.src=s+(s.includes('?')?'&':'?')+'_='+Date.now()};
+  if((S.viaT||viaP(sr)||(sr.imgT&&hasBridge()))&&await T())return;el.src=s}
+function drawR(){const rc=$('#rc'),n=R.imgs.length;rc.className='m-'+S.rmode+' f-'+S.fit;rc.style.cssText=`--gap:${S.gap}px;background:${S.rbg};filter:brightness(${S.bright/100}) ${FL[S.filter]}`;io?.disconnect();rc.onscroll=null;
+  if(S.rmode==='scroll'){rc.innerHTML=R.imgs.map((s,k)=>`<img data-k="${k}" data-s="${esc(s)}">`).join('');
+    io=new IntersectionObserver(es=>es.forEach(x=>{if(!x.isIntersecting)return;const el=x.target;setImg(el);if(x.intersectionRatio>=.5){R.p=+el.dataset.k;$('#pc').textContent=`${R.p+1}/${n}`;prog()}}),{root:rc,rootMargin:`${S.preload*60}% 0px`,threshold:[0,.5]});
+    rc.querySelectorAll('img').forEach(e=>io.observe(e));
+    let busy=0;rc.onscroll=()=>{if(S.autoNext&&!busy&&R.p>=n-1&&rc.scrollTop+rc.clientHeight>=rc.scrollHeight-6){busy=1;next()}};
+    rc.querySelector(`[data-k="${R.p}"]`)?.scrollIntoView()}
+  else show()}
+function show(){const rc=$('#rc'),st=S.rmode==='double'?2:1,n=R.imgs.length;R.p=Math.max(0,Math.min(R.p,n-1));
+  const ids=[R.p,R.p+1].slice(0,st).filter(k=>k<n);rc.innerHTML=`<div class="pg ${S.rtl&&st>1?'rv':''}">`+ids.map(k=>`<img data-k="${k}" data-s="${esc(R.imgs[k])}">`).join('')+'</div>';
+  rc.querySelectorAll('img').forEach(e=>setImg(e));if(!S.viaT&&!needT(R.u))for(let k=1;k<=S.preload;k++){const s=R.imgs[R.p+st-1+k];if(s)new Image().src=s}
+  $('#pc').textContent=`${R.p+1}/${n}`;rc.scrollTop=0;prog()}
+function step(d){if(S.rmode==='scroll'){$('#rc').scrollBy({top:d*innerHeight*.85,behavior:'smooth'});return}const st=S.rmode==='double'?2:1;R.p+=d*st;if(R.p>=R.imgs.length)next();else if(R.p<0)prev();else show()}
+function next(){if(R.i+1<cur.chs.length)read(R.i+1);else toast('هذا آخر فصل')}
+function prev(){if(R.i>0)read(R.i-1);else toast('هذا أول فصل')}
+function prog(){if(!cur||!R)return;P[cur.m.u]={t:cur.m.t,c:cur.m.c,i:R.i,p:R.p,n:cur.chs[R.i]?.n,at:Date.now()};ls.s('prog',P)}
+async function wl(){try{if(S.wake&&!W)W=await navigator.wakeLock.request('screen')}catch{}}
+function closeR(){$('#rd').hidden=true;io?.disconnect();W?.release?.();W=null;R=null;$('#rs').hidden=true;if(tab==='lib')lib()}
+$('#rc').addEventListener('click',e=>{if(!R)return;const w=innerWidth,x=e.clientX;
+  if(S.tap&&S.rmode!=='scroll'){if(x<w/3)return step(S.rtl?1:-1);if(x>w*2/3)return step(S.rtl?-1:1)}
+  $('#rd').classList.toggle('hb')});
+addEventListener('keydown',e=>{if($('#rd').hidden)return;const k=e.key;if(k==='ArrowLeft')step(S.rtl?1:-1);else if(k==='ArrowRight')step(S.rtl?-1:1);else if(k===' '||k==='ArrowDown')step(1);else if(k==='ArrowUp')step(-1);else if(k==='Escape')closeR()});
+
+/* ---------- Cloudflare WebView panel (per source) ---------- */
+function cf(){main.innerHTML=`<p class="c" style="padding:6px" id="cfs">ميزة Cloudflare متاحة للجميع. ${hasBridge()?'تم اكتشاف جسر WebView — سيحاول Fate جلب الكوكيز وUser-Agent تلقائيًا من الجلسة المحلية.':'افتح المصدر، أكمل تحدي Cloudflare، ثم الصق Cookie يدويًا هنا.'} يتم حفظه محليًا على جهازك ولا يُرسل إلى خادم Fate.</p>
+  <div class="bar"><select id="cfsrc">${SRCS.map((x,i)=>`<option value="${i}" ${x===CS?'selected':''}>${esc(x.name)}</option>`).join('')}</select><button data-act="cfload">تحميل</button><button data-act="cfopen">فتح في نافذة</button><button class="acc" data-act="cfsync">انتهيت — حدّث الترويسات والكوكيز</button></div>
+  <iframe id="cff" src="${esc(CS.base)}"></iframe><p class="c" style="padding:6px;font-size:.8rem">إذا ظهرت الصفحة فارغة فالموقع يمنع التضمين: استخدم «فتح في نافذة»، ثم ارجع. داخل WebView سيحاول الزر التلقائي قراءة جلسة التطبيق؛ وفي المتصفح العادي استخدم الإدخال اليدوي.</p>
+  <textarea id="cfc" placeholder="Cookie يدوي: cf_clearance=...">${esc(CS.cookie)}</textarea><div class="bar"><button class="acc" data-act="cfmanual">جلب الكوكيز يدويًا</button><button data-act="cfsave">حفظ الكوكيز</button></div>`;if(hasBridge())setTimeout(()=>sync(),0)}
+async function sync(){const st=$('#cfs'),w=window;let got=false;
+  try{let c,ua;if(w.flutter_inappwebview?.callHandler){c=await w.flutter_inappwebview.callHandler('getCookies',CS.base);ua=await w.flutter_inappwebview.callHandler('getUserAgent')}else if(w.Android?.getCookies){c=await w.Android.getCookies(CS.base);ua=await w.Android.getUserAgent?.()}else if(w.nativeGetCookies)c=await w.nativeGetCookies(CS.base);
+    if(c){CS.cookie=String(c);if(ua)S.ua=String(ua);save();got=true}}catch(e){log(e.message)}
+  cache.clear();let res;try{const r=await get(CS.base+'/');res='الاتصال يعمل ✓ ('+r.status+')'}catch(e){res='ما زال محجوباً: '+e.message}
+  st.textContent=(got?'تم تحديث الترويسات والكوكيز. ':'ما قدرت أسحب الكوكيز تلقائياً — عادي، كمّل. ')+res}
+
+/* ---------- settings ---------- */
+const SCH=[['المظهر','a',[['theme','select','الثيم',['dark','light','amoled','sepia','system']],['red','checkbox','تبديل التمييز الأحمر'],['accent','color','لون التمييز'],['cols','range','أعمدة الشبكة',2,6],['radius','range','استدارة الزوايا',0,24],['font','range','حجم الخط',12,22]]],
+['القارئ','r',[['rmode','select','وضع القراءة',['scroll','paged','double']],['fit','select','ملاءمة الصورة',['width','height','orig']],['rtl','checkbox','اتجاه يمين←يسار (صفحات)'],['gap','range','المسافة بين الصور',0,40],['rbg','color','خلفية القارئ'],['bright','range','السطوع %',30,100],['filter','select','فلتر',['none','invert','grayscale','sepia']],['preload','range','تحميل مسبق',0,10],['tap','checkbox','مناطق اللمس'],['autoNext','checkbox','الفصل التالي تلقائياً'],['wake','checkbox','إبقاء الشاشة مضاءة']]],
+['متقدم','v',[['ua','text','User-Agent'],['headers','text','ترويسات إضافية JSON'],['mode','select','طريقة الاتصال',['auto','direct','bridge','proxy']],['proxy','text','قالب البروكسي {url}'],['delay','range','تأخير بين الطلبات ms',0,3000],['retries','range','المحاولات',0,5],['timeout','range','المهلة ms',5000,60000],['ttl','range','عمر الكاش (ث)',0,3600],['viaT','checkbox','كل الصور عبر طبقة الاتصال'],['refpol','select','Referrer للصور',['no-referrer','origin','same-origin','unsafe-url']]]]];
+function fld([k,t,l,a,b]){const v=gp(S,k);return `<label><span>${l}</span>${t==='select'?`<select data-k="${k}">${a.map(o=>`<option ${o==v?'selected':''}>${o}</option>`).join('')}</select>`:t==='checkbox'?`<input type="checkbox" data-k="${k}" ${v?'checked':''}>`:t==='range'?`<input type="range" data-k="${k}" min="${a}" max="${b}" value="${v}"><small>${v}</small>`:`<input type="${t}" data-k="${k}" value="${esc(v)}">`}</label>`}
+const SF=[['name','الاسم'],['base','رابط الموقع'],['api','رابط API (لنوع swat)'],['icon','صورة الأيقونة (اختياري — تُجلب تلقائياً)'],['list','مسار القائمة {p} {pp}'],['search','مسار البحث {q} {p} {pp}'],['cookie','Cookie'],['sel.list','Selector القائمة'],['sel.title','Selector العنوان'],['sel.chap','Selector الفصول'],['sel.img','Selector الصور']];
+const KINDS=['madara','stream','astro','swat','generic'];
+const srcSet=()=>`<details><summary>المصادر (${SRCS.length})</summary>${SRCS.map((x,i)=>`<details><summary style="color:${x.color}">${esc(x.name)}</summary>${SF.map(([k,l])=>`<label><span>${l}</span><input type="text" data-si="${i}" data-sk="${k}" value="${esc(gp(x,k))}"></label>`).join('')}<label><span>النوع</span><select data-si="${i}" data-sk="kind">${KINDS.map(o=>`<option ${o===x.kind?'selected':''}>${o}</option>`).join('')}</select></label><label><span>الصور عبر طبقة الاتصال (Referer)</span><input type="checkbox" data-si="${i}" data-sk="imgT" ${x.imgT?'checked':''}></label><label><span>عبر بروكسي Scrapling (Cloudflare)</span><input type="checkbox" data-si="${i}" data-sk="viaP" ${x.viaP?'checked':''}></label><div class="bar"><button data-act="sdel" data-i="${i}">🗑 حذف المصدر</button></div></details>`).join('')}<div class="bar"><button class="acc" data-act="sadd">+ إضافة مصدر</button></div></details>`;
+function devEntry(){return `<details open><summary>مزايا المطوّر</summary><p class="c">تعديل المصادر والكوكيز وأكواد الدخول محمي خادميًا ولا يظهر في HTML العام.</p><div class="bar"><button class="acc" data-act="devOpen">فتح لوحة المطوّر</button></div></details>`}
+function setView(){main.innerHTML=SCH.map(([n,id,f])=>`<details ${id==='a'?'open':''}><summary>${n}</summary>${f.map(fld).join('')}</details>`).join('')+(DEV?srcSet():devEntry())+`<details><summary>تشخيص وأدوات وسجل</summary><div class="bar"><button class="acc" data-act="diag">🔍 تشخيص المصدر الحالي (${esc(CS.name)})</button></div><input id="dgu" type="text" style="width:100%" placeholder="رابط فصل لاختبار الصور (اختياري)"><pre id="dg"></pre><div class="bar"><button data-act="test">اختبار الاتصال</button><button data-act="clr">مسح الكاش</button><button data-act="exp">تصدير</button><button data-act="imp">استيراد</button><button data-act="rst">إعادة ضبط</button></div><textarea id="ex"></textarea><pre>${esc(L.join('\n'))}</pre></details><details><summary>حول Fate Manga</summary><p class="c">الإصدار: <b>1.2026</b></p><p class="c">يمكن تشغيل الموقع داخل تطبيق Android WebView أصلي، وسيستفيد من جسر التطبيق الموجود لسحب User-Agent والكوكيز بعد إكمال تحقق Cloudflare يدويًا. هذا التكامل لا يتجاوز الحماية تلقائيًا ولا يشارك كوكيز الجلسة مع خادم Fate.</p></details>`}
+async function dev(){if(!DEV){main.innerHTML='<details open><summary>دخول المطوّر</summary><p class="c">يتم التحقق على الخادم. لا تضع كود المطوّر داخل رابط أو ملف HTML.</p><label><span>كود المطوّر</span><input id="dcode" type="password" inputmode="numeric" autocomplete="off"></label><div class="bar"><button class="acc" data-act="devLogin">دخول آمن</button></div><p id="de"></p></details>';return}try{const r=await fetch('/api/dev/state',{credentials:'same-origin'});if(!r.ok){DEV=false;return dev()}const j=await r.json(),editableSources=j.sources?.length?j.sources:SRCS;main.innerHTML=`<details open><summary>لوحة المطوّر</summary><div class="bar"><button data-act="devLogout">تسجيل الخروج</button><button class="acc" data-act="newCode">إنشاء كود جديد</button></div><p id="newcode" class="c"></p><h4>أكواد الدخول</h4>${j.codes.map(c=>`<div class="bar"><span>${esc(c.label)} — ${esc(c.id.slice(0,8))}</span><button data-act="delCode" data-id="${esc(c.id)}">إلغاء</button></div>`).join('')}<h4>قالب البروكسي</h4><input id="devproxy" value="${esc(j.settings?.proxyTemplate||'')}"><div class="bar"><button class="acc" data-act="saveDevSettings">حفظ الإعدادات</button></div><h4>المصادر والكوكيز</h4><p class="c">يتم حفظ هذا JSON على الخادم. لا تشارك الكوكيز أو أكواد الدخول.</p><textarea id="devsources" style="min-height:300px">${esc(JSON.stringify(editableSources,null,2))}</textarea><div class="bar"><button class="acc" data-act="saveDevSources">حفظ المصادر للجميع</button></div></details>`}catch(e){main.innerHTML=`<p class="c err">تعذر فتح لوحة المطوّر: ${esc(e.message)}</p>`}}
+document.addEventListener('input',e=>{const el=e.target,k=el.dataset?.k,si=el.dataset?.si;
+  if(si!==undefined){const x=SRCS[+si];let v=el.type==='checkbox'?el.checked:el.value.trim();if(el.dataset.sk==='base')v=v.replace(/\/+$/,'');sp(x,el.dataset.sk,v);ls.s('srcs',SRCS);return}
+  if(!k)return;const v=el.type==='checkbox'?el.checked:el.type==='range'?+el.value:el.value;sp(S,k,v);save();if(el.type==='range')el.nextElementSibling.textContent=v;if(R&&!$('#rd').hidden&&['r','rmode','fit','rtl','gap','rbg','bright','filter','preload'].includes(k))drawR()});
+
+/* ---------- diagnose: يطلع لك بالضبط وش يشوف التطبيق ---------- */
+async function diag(){const out=$('#dg'),sr=CS,w=t=>{out.textContent+=t+'\n'};out.textContent='';cache.clear();
+  w(`المصدر: ${sr.name} [${sr.kind}] ${sr.base}\nmode=${S.mode} bridge=${hasBridge()} imgT=${sr.imgT} cookie=${sr.cookie?'yes':'no'}\n`);
+  for(const t of[...new Set([sr.ok,sr.list,...(sr.alt||[])].filter(Boolean))]){const u=sr.base+tpl(t,{p:1,q:''});
+    try{const r=await get(u,{src:sr}),d=parse(r.text),l=listing(d,u,sr);
+      w(`✓ ${r.status} ${u}\n   bytes=${r.text.length} a=${q(d,'a').length} astro=${q(d,'astro-island').length} items=${l.length}`+(l[0]?`\n   مثال: ${l[0].t}\n   url:   ${l[0].u}\n   cover: ${l[0].c}`:''))}
+    catch(e){w(`✗ ${u}\n   ${e.message}`)}}
+  if(sr.kind==='swat'){try{w('API series: '+JSON.stringify(await swatJ(sr,'series/?page_size=1&order_by=-created_at')).slice(0,700)+'\n')}catch(e){w('✗ API series: '+e.message+'\n')}}
+  const cu=$('#dgu').value.trim();
+  if(cu){const s2=srcOf(cu);w(`\n— فصل: ${cu}  (${s2.name})`);
+    try{if(s2.kind==='swat'){try{w('API chapter: '+JSON.stringify(await swatJ(s2,`chapter/${sid(cu)}/`)).slice(0,900))}catch(e){w('✗ API chapter: '+e.message)}}else{const r=await get(cu,{src:s2}),x=extractImgs(r.text,cu),api=apiUrls(r.text,s2);
+      w(`bytes=${r.text.length} dom=${x.dom.length} script=${x.sc.length} astro=${x.as.length} api=${api.length}${api[0]?'\n   api: '+api.slice(0,3).join('\n        '):''}`)}
+      const im=await chImgs(cu);w(`النتيجة النهائية: ${im.length} صورة`);im.slice(0,3).forEach(z=>w('   '+z));
+      if(im[0]){try{const b=await get(im[0],{type:'blob',src:s2,headers:{Referer:cu}});w(`أول صورة عبر الطبقة ✓ ${b.status} ${b.blob?.size||0}B`)}catch(e){w('أول صورة عبر الطبقة ✗ '+e.message)}}}
+    catch(e){w('✗ '+e.message)}}
+  w('\nانسخ هذا الناتج وأرسله.')}
+
+/* ---------- actions ---------- */
+const A={
+  devOpen:dev,
+  async devLogin(){const code=$('#dcode')?.value.trim();const r=await fetch('/api/dev/login',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({code})});if(!r.ok){$('#de').textContent='الكود غير صحيح';return}DEV=true;toast('تم دخول المطوّر');dev()},
+  async devLogout(){await fetch('/api/dev/logout',{method:'POST',headers:devHeaders(),credentials:'same-origin'});DEV=false;toast('تم تسجيل الخروج');setView()},
+  async newCode(){const r=await fetch('/api/dev/codes',{method:'POST',headers:devHeaders({'Content-Type':'application/json'}),credentials:'same-origin',body:JSON.stringify({label:'كود مطوّر'})});if(!r.ok)return toast('تعذر إنشاء الكود');const j=await r.json();dev();setTimeout(()=>{$('#newcode').textContent='الكود الجديد — انسخه الآن: '+j.code},0)},
+  async delCode(t){if(!confirm('إلغاء هذا الكود؟'))return;const r=await fetch('/api/dev/codes/'+encodeURIComponent(t.dataset.id),{method:'DELETE',headers:devHeaders(),credentials:'same-origin'});toast(r.ok?'تم إلغاء الكود':'لا يمكن إلغاء آخر كود');dev()},
+  async saveDevSettings(){const r=await fetch('/api/dev/settings',{method:'PUT',headers:devHeaders({'Content-Type':'application/json'}),credentials:'same-origin',body:JSON.stringify({proxyTemplate:$('#devproxy').value.trim()})});toast(r.ok?'تم حفظ إعدادات البروكسي للجميع':'قالب البروكسي غير صالح')},
+  async saveDevSources(){try{const sources=JSON.parse($('#devsources').value);if(!Array.isArray(sources))throw Error();const r=await fetch('/api/dev/sources',{method:'PUT',headers:devHeaders({'Content-Type':'application/json'}),credentials:'same-origin',body:JSON.stringify({sources})});toast(r.ok?'تم تحديث المصادر للجميع':'فشل حفظ المصادر')}catch{toast('JSON المصادر غير صالح') }},
+  search(){qs=$('#q').value.trim();if(!hs&&qs)return sall();go('home')},sall,
+  pick(t){hs=t.dataset.id;CS=SRCS.find(x=>x.id===hs)||SRCS[0];ls.s('hs',hs);qs='';$('#q').value='';go('home')},
+  back(){qs='';$('#q').value='';picker()},
+  sadd(){const id='s'+Date.now();SRCS.push(norm({id,name:'مصدر '+(SRCS.length+1),base:'https://',...MAD}));ls.s('srcs',SRCS);setView()},
+  sdel(t){if(SRCS.length<2||!confirm('حذف المصدر؟'))return;const x=SRCS.splice(+t.dataset.i,1)[0];if(CS===x)CS=SRCS[0];if(hs===x.id){hs='';ls.s('hs','')}ls.s('srcs',SRCS);setView()},
+  tocf(t){CS=SRCS.find(x=>x.id===t.dataset.id)||CS;go('cf')},retry(){home()},more:loadAll,open(t){detail(t.dataset.u)},
+  read(t){read(+t.dataset.i,+t.dataset.p||0)},close:closeR,next,prev,rset(){const s=$('#rs');s.hidden=!s.hidden;s.innerHTML=SCH[1][2].map(fld).join('')},
+  fav(){const u=cur.m.u,i=FAV.findIndex(f=>f.u===u);i<0?FAV.push(cur.m):FAV.splice(i,1);ls.s('fav',FAV);detail(u)},
+  cfload(){$('#cff').src=CS.base},cfopen(){window.open(CS.base,'_blank')},cfsync:sync,cfmanual(){const value=window.prompt('الصق Cookies الخاصة بـ '+CS.name+' هنا. ابحث عن cf_clearance بعد حل تحدي Cloudflare:','');if(value===null)return;$('#cfc').value=value.trim();A.cfsave()},cfsave(){CS.cookie=$('#cfc').value.trim().replace(/;\s*(?=\S)/g,'; ').replace(/;\s*$/,'');save();toast(/(?:^|;\s*)cf_clearance=/.test(CS.cookie)?'تم الحفظ ✓ — تم العثور على cf_clearance':'تم الحفظ، لكن لم نجد cf_clearance في النص')},
+  diag,
+  async test(){cache.clear();try{const r=await get(CS.base+'/');toast('✓ '+r.status+' — '+listing(parse(r.text),CS.base,CS).length+' عنصر')}catch(e){toast('✗ '+e.message)}},
+  clr(){cache.clear();toast('تم مسح الكاش')},exp(){$('#ex').value=JSON.stringify({cfg:S,srcs:SRCS,fav:FAV,prog:P})},
+  imp(){try{const o=JSON.parse($('#ex').value);if(o.cfg){S={...D,...o.cfg};save()}
+    if(o.srcs){SRCS=o.srcs;SRCS.forEach(norm);CS=SRCS[0];hs='';ls.s('hs','');save()}
+    if(o.fav){FAV=o.fav;ls.s('fav',FAV)}if(o.prog){P=o.prog;ls.s('prog',P)}toast('تم الاستيراد');setView()}catch{toast('JSON غير صالح')}},
+  rst(){if(confirm('إعادة ضبط كل الإعدادات؟')){S={...D};save();setView()}}};
+document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(t){A[t.dataset.act]?.(t);return}const n=e.target.closest('nav [data-t]');if(n)go(n.dataset.t)});
+  document.addEventListener('change',e=>{if(e.target.id==='cfsrc'){CS=SRCS[+e.target.value];cf()}if(e.target.dataset?.filter){const k=e.target.dataset.filter;filters[k]=k==='min'?+e.target.value:e.target.value;renderHome(CS)}});
+$('#q').addEventListener('keydown',e=>{if(e.key==='Enter')A.search()});
+  loadRemoteSourceConfig().finally(()=>{theme();go('home');autoIcons()});
+</script>
+</body>
+</html>
