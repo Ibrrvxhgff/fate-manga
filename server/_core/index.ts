@@ -11,7 +11,7 @@ import { createContext } from "./context";
 import { serveStatic } from "./static";
 import { getCompetitionSummary, getDates, getMatchById, getMatches } from "../data/matches";
 import type { MatchStatus } from "@shared/matches";
-import { codeHash, newCode, publicSources, readStore, sourceCookie, verifyCode, writeStore } from "../data/dev-settings";
+import { codeHash, effectiveSources, newCode, publicSources, readStore, sourceCookie, verifyCode, writeStore } from "../data/dev-settings";
 
 const allowedStatuses = new Set<MatchStatus>(["live", "scheduled", "done"]);
 const apiWindows = new Map<string, { startedAt: number; count: number }>();
@@ -30,7 +30,7 @@ const metadataWindows = new Map<string, { startedAt: number; count: number }>();
 function isAllowedSourceUrl(value: string) {
   try {
     const u = new URL(value);
-    const configuredHosts = readStore().sources.flatMap(source => { try { return [new URL(source.base).hostname]; } catch { return []; } });
+    const configuredHosts = effectiveSources().flatMap(source => { try { return [new URL(source.base).hostname]; } catch { return []; } });
     return u.protocol === "https:" && !isUnsafeHostname(u.hostname) && [...sourceHosts, ...configuredHosts].some(
       host => u.hostname === host || u.hostname.endsWith(`.${host}`),
     );

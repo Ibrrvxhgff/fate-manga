@@ -1,11 +1,13 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { DEFAULT_SOURCES } from "./default-sources";
 
 export type DevSource = {
   id: string;
   name: string;
   base: string;
+  icon?: string;
   kind?: string;
   api?: string;
   list?: string;
@@ -62,11 +64,18 @@ export function newCode() {
 }
 
 export function publicSources() {
-  return readStore().sources.filter(s => s.enabled !== false).map(({ cookie: _cookie, ...safe }) => safe);
+  const sources = effectiveSources();
+  return sources.filter(s => s.enabled !== false).map(({ cookie: _cookie, ...safe }) => safe);
+}
+
+/** Use bundled public sources when the optional writable store is empty. */
+export function effectiveSources() {
+  const configured = readStore().sources;
+  return configured.length ? configured : DEFAULT_SOURCES;
 }
 
 export function sourceCookie(hostname: string) {
-  return readStore().sources.find(s => {
+  return effectiveSources().find(s => {
     try { const h = new URL(s.base).hostname; return hostname === h || hostname.endsWith(`.${h}`); } catch { return false; }
   })?.cookie || "";
 }
