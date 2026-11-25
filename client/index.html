@@ -193,7 +193,7 @@ const chapsOf=(d,u)=>{const seen=new Set();let r=chAnch(d,sl('chap')).map(a=>{co
 const GENRE_AR={action:'أكشن',adventure:'مغامرة',comedy:'كوميديا',drama:'دراما',fantasy:'فانتازيا',romance:'رومانسية',school:'مدرسي',sliceoflife:'حياة يومية',
   'slice of life':'حياة يومية',supernatural:'خارق للطبيعة',historical:'تاريخي',horror:'رعب',mystery:'غموض',psychological:'نفسي',thriller:'إثارة',
   martialarts:'فنون قتالية','martial arts':'فنون قتالية',shounen:'شونين',shoujo:'شوجو',seinen:'سينين',josei:'جوسي',sports:'رياضي',
-  sci-fi:'خيال علمي',scifi:'خيال علمي',isekai:'إيسيكاي',magic:'سحر',manhua:'مانها صينية',manhwa:'مانهوا كورية',webtoon:'ويب تون',
+  'sci-fi':'خيال علمي',scifi:'خيال علمي',isekai:'إيسيكاي',magic:'سحر',manhua:'مانها صينية',manhwa:'مانهوا كورية',webtoon:'ويب تون',
   'adult content':'محتوى للبالغين','mature content':'محتوى ناضج'};
 const genreLabel=x=>{const t=String(x??'').replace(/\s+/g,' ').trim(),k=t.toLowerCase().replace(/[._-]/g,' ').replace(/\s+/g,' ');return GENRE_AR[k.replace(/ /g,'')]||GENRE_AR[k]||t};
 function addGenres(out,v){if(Array.isArray(v))return v.forEach(x=>addGenres(out,x));if(v&&typeof v==='object')return addGenres(out,v.name||v.title||v.label||v.genre||v.genres);if(typeof v!=='string')return;v.split(/[,،|;；]+/).map(x=>genreLabel(x)).forEach(x=>{if(x&&x.length<60&&!/^(genre|genres|category|categories|التصنيف|التصنيفات|النوع)$/i.test(x)&&!out.includes(x))out.push(x)})}
