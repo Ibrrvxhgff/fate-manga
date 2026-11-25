@@ -77,7 +77,7 @@ const DS=[
 {id:'starz',name:'ستارز مانجا',base:'https://starzmanga.net',icon:'https://starzmanga.net/wp-content/512starzmanga.png',...MAD},
  {id:'swat',name:'مانجا سوات',base:'https://appswat.com',kind:'swat',api:'https://appswat.com/v2/api/v2/',list:'',search:''},
 {id:'manonga',name:'مانجا أونلاين',base:'https://manonga.online',icon:'https://www.onma.me/uploads/favicon.png',...MAD},
-{id:'hijala',name:'مانجا حجالة',base:'https://hijala.com',...MAD},
+	{id:'hijala',name:'مانجا حجالة',base:'https://hijala.com',kind:'madara',list:'/manga/?order=update&page={p}',search:'/?s={q}',alt:['/manga/?order=update','/page/{p}']},
 {id:'azora',name:'أزورا',base:'https://azorafly.com',kind:'stream',list:'/series/?page={p}',search:'/series/?search={q}&page={p}',alt:['/series/']},
 {id:'mangalik',name:'مانجا ليك',base:'https://mangalik.net',icon:'https://io.mangalik.net/wp-content/app/lekmanganet/512.png',...MAD},
 {id:'lava',name:'لافا سكانس',base:'https://lavascans.com',kind:'astro',imgT:true,list:'/series?page={p}',search:'/?s={q}&page={p}',alt:['/series/?page={p}','/?s=&page={p}','/']},
@@ -161,6 +161,8 @@ async function get(url,o={}){
 const parse=h=>new DOMParser().parseFromString(h||'','text/html'),abs=(u,b)=>{try{return new URL(u,b).href}catch{return u}};
 const ia=e=>{if(!e)return'';for(const a of['data-src','data-lazy-src','data-original','data-cfsrc','data-url','data-srcset','data-lazy-srcset','srcset','src']){const v=(e.getAttribute(a)||'').trim();if(!v||v.startsWith('data:'))continue;return v.split(',')[0].trim().split(/\s+/)[0]}return''};
 const PATH=/\/(manga|series|serie|comics?|webtoon|manhwa|manhua|work|title|read)\/[^/?#]+/i;
+const HIJALA_SKIP=new Set(['manga','page','genre','genres','author','tag','tags','search','login','register','contact','privacy','about']);
+const isMangaUrl=(u,sr=CS)=>{if(PATH.test(u))return true;if(sr.id!=='hijala')return false;try{const p=new URL(u).pathname.split('/').filter(Boolean);return p.length===1&&!HIJALA_SKIP.has(p[0].toLowerCase())&&!/^page\d*$/i.test(p[0])}catch{return false}};
 const IMGX=/\.(?:jpe?g|png|webp|avif|gif)(?:[?#]|$)/i,str=x=>typeof x==='string'?x:'';
 const LIST_SEL='.page-item-detail,.c-tabs-item__row,.popular-item-wrap,.listupd .bs,.listupd .bsx,.utao,.series-card,.manga-card,.app-series-card';
 
@@ -181,7 +183,7 @@ function astroChaps(d,sr){const seen=new Set(),out=[],B=sr.base+'/';
 function listing(d,u,sr=CS){const els=q(d,sl('list',sr)||LIST_SEL);
   let out=els.map(e=>{const a=e.querySelector('h3 a,h5 a,.post-title a,.tt a,a[title],a[href]'),i=e.querySelector('img');if(!a)return;
     return{u:abs(a.getAttribute('href')||'',u),t:(e.querySelector('h3,h5,.tt,.post-title')?.textContent||a.title||i?.alt||a.textContent||'').trim(),c:i?abs(ia(i),u):''}}).filter(x=>x&&PATH.test(x.u));
-  if(!out.length)out=q(d,'a').filter(a=>a.querySelector('img')&&PATH.test(abs(a.getAttribute('href')||'',u))).map(a=>{const i=a.querySelector('img');return{u:abs(a.getAttribute('href'),u),t:(a.title||i.alt||a.textContent).trim(),c:abs(ia(i),u)}});
+	  if(!out.length)out=q(d,'a').filter(a=>a.querySelector('img')&&isMangaUrl(abs(a.getAttribute('href')||'',u),sr)).map(a=>{const i=a.querySelector('img');return{u:abs(a.getAttribute('href'),u),t:(a.title||i.alt||a.textContent).trim(),c:abs(ia(i),u)}});
   if(!out.length)out=astroList(d,sr);
   const sn=new Set();return out.filter(x=>x.t&&!sn.has(x.u)&&sn.add(x.u)).map(x=>({...x,meta:null}))}
 const CHS=['li.wp-manga-chapter > a','#chapterlist li a','.eplister li a','.chapter-list li a','ul.main li a','div.grid a[href*="chapter"]'];
