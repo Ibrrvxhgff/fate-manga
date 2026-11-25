@@ -88,7 +88,7 @@ const DS=[
 {id:'kingofshojo',name:'King Of Shojo',base:'https://kingofshojo.com',...MAD},
 {id:'vortexscans',name:'Vortex Scans',base:'https://vortexscans.org',kind:'stream',list:'/series/?page={p}',search:'/series/?search={q}&page={p}',alt:['/series/']},
 {id:'asurascans',name:'Asura Scans',base:'https://asurascans.com',kind:'astro',imgT:true,list:'/browse/comics?page={p}',search:'/browse/comics?q={q}&page={p}',alt:['/browse/comics','/']}];
-const SV=7;
+const SV=8;
 const hue=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))%360;return`hsl(${h} 65% 50%)`};
 const norm=x=>{x.sel={list:'',title:'',chap:'',img:'',...x.sel};x.cookie=x.cookie||'';x.color=x.color||hue(x.id);x.icon=x.icon||'';x.viaP=!!x.viaP;x.api=x.api||'';x.kind=x.kind||'madara';x.alt=x.alt||[];x.imgT=!!x.imgT;return x};
 let SRCS=ls.g('srcs',null);
