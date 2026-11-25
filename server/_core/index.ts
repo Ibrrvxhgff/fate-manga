@@ -8,7 +8,7 @@ import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { publicPlatformScript } from "./publicConfig";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
-import { serveStatic, setupVite } from "./vite";
+import { serveStatic } from "./static";
 import { getCompetitionSummary, getDates, getMatchById, getMatches } from "../data/matches";
 import type { MatchStatus } from "@shared/matches";
 import { codeHash, newCode, publicSources, readStore, sourceCookie, verifyCode, writeStore } from "../data/dev-settings";
@@ -331,6 +331,7 @@ export async function createApp() {
   );
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
+    const { setupVite } = await import("./vite");
     await setupVite(app, server);
   } else if (!process.env.VERCEL) {
     serveStatic(app);
