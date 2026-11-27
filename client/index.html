@@ -341,8 +341,8 @@ async function sall(){const k=$('#q').value.trim();if(!k)return toast('اكتب 
   const res={},tk=++sTok,draw=()=>{if(tk!==sTok||tab!=='home')return;
     main.innerHTML=`<h3>نتائج «${esc(k)}» في كل المصادر</h3>`+SRCS.map(x=>{const r=res[x.id];return`<div class="sh" style="--sc:${x.color}">${ico(x)}<h3>${esc(x.name)}${r&&r.l?' ('+r.l.length+')':''}</h3></div>`+(!r?'<p class="c">جارٍ البحث…</p>':r.e?`<p class="c err">${esc(r.e.split('\n')[0])}</p>`:r.l.length?`<div class="grid">${r.l.map(card).join('')}</div>`:'<p class="c">لا نتائج</p>')}).join('');hydrate()};
   draw();await Promise.all(SRCS.map(async x=>{try{const{items:l}=await fetchList(x,k,1);res[x.id]={l}}catch(e){res[x.id]={e:e.message}}draw()}));const total=Object.values(res).reduce((n,r)=>n+(r?.l?.length||0),0);announce(`اكتمل البحث: ${total} نتيجة لـ ${k}`)}
-function lib(){const hs2=Object.entries(P).sort((a,b)=>b[1].at-a[1].at);
-  main.innerHTML=`<h3>تابع القراءة</h3><div class="grid">${hs2.map(([u,p])=>card({u,t:p.t+' · ف'+(p.n??'')+'',c:p.c})).join('')||'<p class="c">لا شيء بعد</p>'}</div><h3>المفضلة</h3><div class="grid">${FAV.map(card).join('')||'<p class="c">لا شيء بعد</p>'}</div>`;hydrate()}
+function lib(){const hs2=Object.entries(P).sort((a,b)=>b[1].at-a[1].at),historyActions=hs2.length?`<div class="bar" style="justify-content:space-between"><span class="c" style="padding:0;text-align:start">${hs2.length} مانجا في سجل القراءة</span><button data-act="clearHistory">حذف سجل القراءة بالكامل</button></div>`:'';
+  main.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><h3>تابع القراءة</h3>${historyActions}</div><div class="grid">${hs2.map(([u,p])=>`<div><div style="position:relative">${card({u,t:p.t+' · ف'+(p.n??'')+'',c:p.c})}</div><button style="width:100%;margin-top:6px" data-act="deleteHistory" data-u="${esc(u)}">حذف من السجل</button></div>`).join('')||'<p class="c">لا شيء بعد</p>'}</div><h3>المفضلة</h3><div class="grid">${FAV.map(card).join('')||'<p class="c">لا شيء بعد</p>'}</div>`;hydrate()}
 async function detail(u){CS=srcOf(u);main.innerHTML='<p class="c">جارٍ التحميل…</p>';
   try{const listed=items.find(x=>x.u===u),listedGenres=listed?.sourceGenres||[];let chs,t,cv,sourceRating=Number(listed?.sourceRating)||0,genres=cachedGenres(u)||listedGenres;
     if(CS.kind==='swat'){const sw=await swatDetail(u);({chs,t,cv,genres,sourceRating}=sw);if(genres.length)saveGenres(u,genres)}
@@ -450,6 +450,8 @@ const A={
   tocf(t){CS=SRCS.find(x=>x.id===t.dataset.id)||CS;go('cf')},retry(){home()},more:loadAll,open(t){detail(t.dataset.u)},
   read(t){read(+t.dataset.i,+t.dataset.p||0)},close:closeR,next,prev,rset(){const s=$('#rs');s.hidden=!s.hidden;s.innerHTML=SCH[1][2].map(fld).join('')},
   fav(){const u=cur.m.u,i=FAV.findIndex(f=>f.u===u);i<0?FAV.push(cur.m):FAV.splice(i,1);ls.s('fav',FAV);detail(u)},
+  deleteHistory(t){const u=t.dataset.u,p=P[u];if(!p)return;if(!confirm(`حذف «${p.t||'هذه المانجا'}» من سجل القراءة؟`))return;delete P[u];ls.s('prog',P);toast('تم حذف المانجا من السجل');lib()},
+  clearHistory(){if(!Object.keys(P).length)return;if(!confirm('حذف سجل القراءة بالكامل؟ لا يمكن التراجع عن هذا الإجراء.'))return;P={};ls.s('prog',P);toast('تم حذف سجل القراءة بالكامل');lib()},
   cfload(){$('#cff').src=CS.base},cfopen(){window.open(CS.base,'_blank')},cfsync:sync,cfmanual(){const value=window.prompt('الصق Cookies الخاصة بـ '+CS.name+' هنا. ابحث عن cf_clearance بعد حل تحدي Cloudflare:','');if(value===null)return;$('#cfc').value=value.trim();A.cfsave()},cfsave(){CS.cookie=$('#cfc').value.trim().replace(/;\s*(?=\S)/g,'; ').replace(/;\s*$/,'');save();toast(/(?:^|;\s*)cf_clearance=/.test(CS.cookie)?'تم الحفظ ✓ — تم العثور على cf_clearance':'تم الحفظ، لكن لم نجد cf_clearance في النص')},
   diag,
   async test(){cache.clear();try{const r=await get(CS.base+'/');toast('✓ '+r.status+' — '+listing(parse(r.text),CS.base,CS).length+' عنصر')}catch(e){toast('✗ '+e.message)}},
