@@ -198,6 +198,18 @@ function metadataRateLimit(req: express.Request, res: express.Response, next: ex
   return next();
 }
 
+const AUTOMATION_USER_AGENT = /(?:curl|wget|python(?:-requests)?|scrapy|selenium|playwright|puppeteer|headlesschrome|phantomjs|go-http-client|java\/|httpclient|libwww-perl)/i;
+
+function antiScrape(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const userAgent = req.get("user-agent") || "";
+  res.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+  if (!userAgent || AUTOMATION_USER_AGENT.test(userAgent)) {
+    res.set("Retry-After", "60");
+    return res.status(403).json({ error: "AUTOMATION_BLOCKED" });
+  }
+  return next();
+}
+
 export async function createApp() {
   const app = express();
   const server = createServer(app);
@@ -225,7 +237,7 @@ export async function createApp() {
   app.use(express.json({ limit: "2mb" }));
   app.use(express.urlencoded({ limit: "64kb", extended: true, parameterLimit: 100 }));
   app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
-  app.get("/api/source-config", (_req, res) => res.json({ sources: publicSources(), settings: readStore().settings }));
+  app.get("/api/source-config", antiScrape, (_req, res) => res.json({ sources: publicSources(), settings: readStore().settings }));
   app.post("/api/dev/login", sameOriginMutation, devLoginRateLimit, (req, res) => {
     const code = typeof req.body?.code === "string" ? req.body.code.trim() : "";
     if (!code || code.length > 128 || !verifyCode(code)) return res.status(401).json({ error: "INVALID_DEVELOPER_CODE" });
@@ -285,7 +297,7 @@ export async function createApp() {
     if (!proxyTemplate.includes("{url}") || /javascript:|data:|@/.test(proxyTemplate)) return res.status(400).json({ error: "INVALID_PROXY_TEMPLATE" });
     const store = readStore(); store.settings.proxyTemplate = proxyTemplate; writeStore(store); return res.json({ ok: true });
   });
-  app.post("/api/manga-meta", metadataRateLimit, async (req, res) => {
+  app.post("/api/manga-meta", antiScrape, metadataRateLimit, async (req, res) => {
     const rawTitles: unknown[] = Array.isArray(req.body?.titles) ? req.body.titles : [];
     const titles: string[] = [...new Set(rawTitles.map(x => String(x).trim()).filter((x: string) => x.length >= 2 && x.length <= 160))].slice(0, 12);
     const result: Record<string, unknown> = {};
@@ -306,7 +318,7 @@ export async function createApp() {
     }
     return res.json({ source: "AniList", items: result });
   });
-  app.get("/api/source-proxy", proxyRateLimit, async (req, res) => {
+  app.get("/api/source-proxy", antiScrape, proxyRateLimit, async (req, res) => {
     const target = typeof req.query.url === "string" ? req.query.url : "";
     if (!isAllowedSourceUrl(target)) return res.status(400).json({ error: "SOURCE_NOT_ALLOWED" });
     try {
@@ -327,7 +339,7 @@ export async function createApp() {
       return res.status(message === "SOURCE_NOT_ALLOWED" ? 400 : 502).json({ error: message });
     }
   });
-  app.get("/api/matches", apiRateLimit, (req, res) => {
+  app.get("/api/matches", antiScrape, apiRateLimit, (req, res) => {
     const rawStatus = typeof req.query.status === "string" ? req.query.status : undefined;
     const status = rawStatus && allowedStatuses.has(rawStatus as MatchStatus) ? rawStatus as MatchStatus : undefined;
     const date = typeof req.query.date === "string" && req.query.date.length <= 10 ? req.query.date : undefined;
@@ -342,7 +354,7 @@ export async function createApp() {
       source: "demo",
     });
   });
-  app.get("/api/matches/:id", apiRateLimit, (req, res) => {
+  app.get("/api/matches/:id", antiScrape, apiRateLimit, (req, res) => {
     const id = req.params.id.slice(0, 64);
     const match = getMatchById(id);
     if (!match) return res.status(404).json({ error: "NOT_FOUND", message: "المباراة غير موجودة." });
@@ -354,6 +366,8 @@ export async function createApp() {
   // tRPC API
   app.use(
     "/api/trpc",
+    antiScrape,
+    apiRateLimit,
     createExpressMiddleware({
       router: appRouter,
       createContext,
