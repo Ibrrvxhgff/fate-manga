@@ -26,6 +26,7 @@ const devSessions = new Map<string, number>();
 const devLoginWindows = new Map<string, { startedAt: number; count: number }>();
 const metadataCache = new Map<string, { at: number; value: unknown }>();
 const metadataWindows = new Map<string, { startedAt: number; count: number }>();
+const DEV_SESSION_TTL_MS = 4 * 60 * 60 * 1000;
 
 function isAllowedSourceUrl(value: string) {
   try {
@@ -79,7 +80,7 @@ function cookieValue(req: express.Request, name: string) {
 
 function sameOriginMutation(req: express.Request, res: express.Response, next: express.NextFunction) {
   const origin = req.headers.origin;
-  if (!origin) return next();
+  if (!origin) return res.status(403).json({ error: "ORIGIN_REQUIRED" });
   const forwardedHost = req.headers["x-forwarded-host"];
   const expectedHost = (typeof forwardedHost === "string" ? forwardedHost.split(",")[0].trim() : req.headers.host) || "";
   const forwardedProto = req.headers["x-forwarded-proto"];
@@ -201,7 +202,15 @@ export async function createApp() {
   const app = express();
   const server = createServer(app);
   app.disable("x-powered-by");
+  app.set("trust proxy", 1);
   app.use((req, res, next) => {
+    const forwardedProto = typeof req.headers["x-forwarded-proto"] === "string"
+      ? req.headers["x-forwarded-proto"].split(",")[0].trim()
+      : req.protocol;
+    if (process.env.NODE_ENV === "production" && forwardedProto === "http") {
+      const host = req.headers["x-forwarded-host"] || req.headers.host;
+      if (typeof host === "string" && !/[\r\n]/.test(host)) return res.redirect(308, `https://${host}${req.originalUrl}`);
+    }
     res.set({
       "X-Content-Type-Options": "nosniff",
       "Referrer-Policy": "strict-origin-when-cross-origin",
@@ -209,7 +218,7 @@ export async function createApp() {
       "X-DNS-Prefetch-Control": "off",
       "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https:; frame-src https:; font-src 'self' data: https:; object-src 'none'; base-uri 'self'; form-action 'self'",
     });
-    if (req.headers["x-forwarded-proto"] === "https" || process.env.NODE_ENV === "production") res.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    if (forwardedProto === "https" || process.env.NODE_ENV === "production") res.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
     next();
   });
   // Keep request bodies bounded; this app does not accept file uploads.
@@ -222,10 +231,10 @@ export async function createApp() {
     if (!code || code.length > 128 || !verifyCode(code)) return res.status(401).json({ error: "INVALID_DEVELOPER_CODE" });
     const token = crypto.randomBytes(32).toString("hex");
     const csrf = crypto.randomBytes(32).toString("hex");
-    devSessions.set(token, Date.now() + 8 * 60 * 60 * 1000);
+    devSessions.set(token, Date.now() + DEV_SESSION_TTL_MS);
     const secure = req.headers["x-forwarded-proto"] === "https" || process.env.NODE_ENV === "production" ? "; Secure" : "";
-    res.set("Set-Cookie", `fate_dev_session=${token}; Path=/; HttpOnly; SameSite=None; Max-Age=28800${secure}`);
-    res.append("Set-Cookie", `fate_dev_csrf=${csrf}; Path=/; SameSite=None; Max-Age=28800${secure}`);
+    res.set("Set-Cookie", `fate_dev_session=${token}; Path=/; HttpOnly; SameSite=None; Max-Age=${DEV_SESSION_TTL_MS / 1000}${secure}`);
+    res.append("Set-Cookie", `fate_dev_csrf=${csrf}; Path=/; SameSite=None; Max-Age=${DEV_SESSION_TTL_MS / 1000}${secure}`);
     return res.json({ ok: true });
   });
   app.post("/api/dev/logout", sameOriginMutation, requireDeveloper, requireDeveloperCsrf, (req, res) => {
